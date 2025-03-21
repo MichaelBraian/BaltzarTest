@@ -432,20 +432,48 @@ export default function Home() {
   
   // Handle scroll effect for header
   useEffect(() => {
+    let lastScrollY = 0;
+    let ticking = false;
+    
     const handleScroll = () => {
       if (typeof window !== 'undefined') {
-        // Check if page is scrolled more than 20px (smaller threshold for quicker response)
-        const newScrolled = window.scrollY > 20;
+        const currentScrollY = window.scrollY;
+        
+        // Check if page is scrolled more than 20px
+        const newScrolled = currentScrollY > 20;
         if (newScrolled !== isScrolled) {
-          console.log(`Scroll state changed: ${newScrolled ? 'scrolled' : 'at top'}, Y position: ${window.scrollY}`);
+          console.log(`Scroll state changed: ${newScrolled ? 'scrolled' : 'at top'}, Y position: ${currentScrollY}`);
           setIsScrolled(newScrolled);
         }
+        
+        // Determine if header should be visible based on scroll direction
+        // Only update header visibility when scrolling up or at the top
+        if (currentScrollY <= 20 || currentScrollY < lastScrollY) {
+          setIsHeaderVisible(true);
+        } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          // Only hide header after scrolling down significantly
+          setIsHeaderVisible(false);
+        }
+        
+        lastScrollY = currentScrollY;
+        ticking = false;
+      }
+    };
+    
+    const onScroll = () => {
+      if (!ticking) {
+        // Use requestAnimationFrame for better performance
+        window.requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
       }
     };
     
     // Add scroll event listener with passive option for better performance
     if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', handleScroll, { passive: true });
+      window.addEventListener('scroll', onScroll, { passive: true });
       
       // Initial check
       handleScroll();
@@ -454,30 +482,40 @@ export default function Home() {
     // Cleanup
     return () => {
       if (typeof window !== 'undefined') {
-        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('scroll', onScroll);
       }
     };
   }, [isScrolled]);
 
-  // Intersection Observer to monitor header visibility
+  // We don't need the separate Intersection Observer anymore since we're controlling
+  // header visibility directly with scroll direction logic
+  // Instead, we'll just ensure the header is appropriately styled
   useEffect(() => {
     if (!headerRef.current) return;
     
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsHeaderVisible(entry.isIntersecting);
-        console.log(`Header visibility: ${entry.isIntersecting ? 'visible' : 'hidden'}`);
-      },
-      { threshold: 0.1 }
-    );
+    // Apply appropriate styles to ensure header is properly fixed
+    headerRef.current.style.position = 'sticky';
+    headerRef.current.style.top = '0';
+    headerRef.current.style.zIndex = '10000';
     
-    observer.observe(headerRef.current);
-    
-    return () => {
-      if (headerRef.current) {
-        observer.unobserve(headerRef.current);
-      }
-    };
+    // Special handling for iOS devices
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent) || 
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+      const style = document.createElement('style');
+      style.innerHTML = `
+        @supports (-webkit-touch-callout: none) {
+          header {
+            position: -webkit-sticky !important;
+            position: sticky !important;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+      
+      return () => {
+        document.head.removeChild(style);
+      };
+    }
   }, []);
   
   // Toggle service expansion with focus management
@@ -556,6 +594,25 @@ export default function Home() {
   // Only run client-side code after mounting
   useEffect(() => {
     setIsMounted(true)
+    
+    // Handle viewport height for mobile browsers
+    const handleViewportHeight = () => {
+      // Set a CSS variable with the viewport height
+      // This is important for mobile browsers where the address bar can change the viewport height
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+    
+    window.addEventListener('resize', handleViewportHeight, { passive: true });
+    window.addEventListener('orientationchange', handleViewportHeight);
+    
+    // Initial setup
+    handleViewportHeight();
+    
+    return () => {
+      window.removeEventListener('resize', handleViewportHeight);
+      window.removeEventListener('orientationchange', handleViewportHeight);
+    };
   }, [])
 
   // Prevent body scrolling when menu is open
@@ -599,70 +656,36 @@ export default function Home() {
     };
   }, [isMenuOpen]);
 
-  // Force header to be visible (simpler solution than before)
-  useEffect(() => {
-    // Simple check to ensure header is visible after scrolling
-    const handleVisibilityCheck = () => {
-      if (headerRef.current) {
-        headerRef.current.style.display = 'block';
-        headerRef.current.style.visibility = 'visible';
-        headerRef.current.style.opacity = '1';
-        
-        // Force header to top of viewport on iOS
-        if (/iPad|iPhone|iPod/.test(navigator.userAgent) || 
-            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
-          headerRef.current.style.position = 'fixed';
-          headerRef.current.style.top = '0px';
-        }
-      }
-    };
-    
-    // Handle viewport height changes (important for mobile browsers)
-    const handleResize = () => {
-      // Set a CSS variable with the viewport height
-      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-      handleVisibilityCheck();
-    };
-    
-    window.addEventListener('scroll', handleVisibilityCheck, { passive: true });
-    window.addEventListener('resize', handleResize, { passive: true });
-    window.addEventListener('orientationchange', handleResize);
-    
-    // Check immediately and periodically
-    handleVisibilityCheck();
-    handleResize();
-    const interval = setInterval(handleVisibilityCheck, 500);
-    
-    return () => {
-      window.removeEventListener('scroll', handleVisibilityCheck);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
-      clearInterval(interval);
-    };
-  }, []);
-  
-  // Add critical CSS for header
+  // Simplified CSS for header with better sticky behavior
   useEffect(() => {
     const style = document.createElement('style');
     style.innerHTML = `
-      /* Critical header styles */
-      .sticky-header-fix {
-        position: fixed !important;
+      /* Sticky header styles */
+      .sticky {
+        position: -webkit-sticky !important;
+        position: sticky !important;
         top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        z-index: 100000 !important;
-        visibility: visible !important;
-        display: block !important;
-        opacity: 1 !important;
-        transform: none !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        z-index: 10000 !important;
       }
       
-      /* iOS specific fixes */
+      /* Add transition for smooth slide in/out */
+      .header-transition {
+        transition: transform 0.3s ease-in-out !important;
+      }
+      
+      /* Hide/show header based on scroll direction */
+      .header-hidden {
+        transform: translateY(-100%) !important;
+      }
+      
+      .header-visible {
+        transform: translateY(0) !important;
+      }
+      
+      /* Fix iOS sticky issues */
       @supports (-webkit-touch-callout: none) {
-        .sticky-header-fix {
+        .sticky {
+          position: -webkit-sticky !important;
           position: sticky !important;
         }
       }
@@ -703,25 +726,27 @@ export default function Home() {
         }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
       >
-        <div className="container flex h-16 items-center justify-between sticky top-0 bg-white z-10 border-b border-amber-100">
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Baltzar-Tandva%CC%8Ard-RGB-mod-286-8MdUcuR5huMlYQvylz1HsD40HkSIJe.png"
-              alt="Baltzar Tandvård"
-              width={180}
-              height={60}
-              style={{ height: '36px', width: 'auto' }}
-              priority
-            />
-          </Link>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={() => setIsMenuOpen(false)} 
-            className="border-amber-200 text-amber-600 shadow-sm h-10 w-10"
-          >
-            <X className="h-5 w-5" />
-          </Button>
+        <div className="sticky top-0 bg-white z-10 border-b border-amber-100">
+          <div className="container flex h-16 items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Baltzar-Tandva%CC%8Ard-RGB-mod-286-8MdUcuR5huMlYQvylz1HsD40HkSIJe.png"
+                alt="Baltzar Tandvård"
+                width={180}
+                height={60}
+                style={{ height: '36px', width: 'auto' }}
+                priority
+              />
+            </Link>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={() => setIsMenuOpen(false)} 
+              className="border-amber-200 text-amber-600 shadow-sm h-10 w-10"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
         
         {/* Mobile swipe indicator */}
@@ -800,46 +825,46 @@ export default function Home() {
         </div>
       </MotionDiv>
 
-      {/* Backup header that appears when the main header is not visible */}
-      {!isHeaderVisible && (
-        <div className="fixed top-0 left-0 right-0 z-[9999] w-full bg-white shadow-lg border-b border-neutral-200 h-16 md:h-20">
-          <div className="container flex h-full items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Baltzar-Tandva%CC%8Ard-RGB-mod-286-8MdUcuR5huMlYQvylz1HsD40HkSIJe.png"
-                alt="Baltzar Tandvård"
-                width={180}
-                height={60}
-                style={{ height: '36px', width: 'auto' }}
-                priority
-              />
-            </Link>
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={() => setIsMenuOpen(true)}
-              className="md:hidden border-amber-200 text-amber-600 shadow-sm h-10 w-10 touch-target"
-              aria-label="Öppna meny"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </div>
+      {/* Backup header that appears when the main header is not visible - now improved to always be sticky */}
+      <div 
+        className={`fixed top-0 left-0 right-0 z-[9999] w-full bg-white shadow-lg border-b border-neutral-200 h-16 md:h-20 header-transition ${
+          isHeaderVisible ? "translate-y-[-100%]" : "translate-y-0"
+        }`}
+      >
+        <div className="container flex h-full items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Baltzar-Tandva%CC%8Ard-RGB-mod-286-8MdUcuR5huMlYQvylz1HsD40HkSIJe.png"
+              alt="Baltzar Tandvård"
+              width={180}
+              height={60}
+              style={{ height: '36px', width: 'auto' }}
+              priority
+            />
+          </Link>
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={() => setIsMenuOpen(true)}
+            className="md:hidden border-amber-200 text-amber-600 shadow-sm h-10 w-10 touch-target"
+            aria-label="Öppna meny"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
         </div>
-      )}
+      </div>
 
       <header 
         ref={headerRef}
-        className={`sticky-header-fix force-visible-header fixed top-0 left-0 right-0 z-[10000] w-full ${
+        className={`sticky top-0 left-0 right-0 z-[10000] w-full header-transition ${
+          isHeaderVisible ? "header-visible" : "header-hidden"
+        } ${
           isScrolled 
             ? "bg-white shadow-lg border-b border-neutral-200" 
             : "bg-white/95 backdrop-blur-md shadow-sm border-b border-neutral-100/50"
         } transition-all duration-300`}
         style={{
           willChange: 'transform',
-          transform: 'translateZ(0)',
-          visibility: 'visible',
-          display: 'block',
-          opacity: 1,
           backfaceVisibility: 'hidden'
         }}
       >
