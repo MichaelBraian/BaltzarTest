@@ -77,6 +77,13 @@ interface ModalProps {
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content }) => {
   if (!isOpen) return null;
+  
+  // References for positioning
+  const modalRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  
+  // State for modal positioning
+  const [scrollPosition, setScrollPosition] = useState<number>(0);
 
   // Close on escape key
   useEffect(() => {
@@ -88,8 +95,25 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content }) => {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
+  // Set scroll position when modal opens to position it properly
+  useEffect(() => {
+    if (isOpen) {
+      // Get current scroll position
+      setScrollPosition(window.scrollY);
+      
+      // Disable body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Re-enable body scroll when modal closes
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Handle touch events to close modal on swipe down (mobile UX improvement)
-  const contentRef = useRef<HTMLDivElement>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [swipeDistance, setSwipeDistance] = useState<number>(0);
@@ -143,12 +167,20 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content }) => {
 
   return (
     <MotionDiv
+      ref={modalRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 md:p-6 touch-none"
+      className="fixed inset-0 z-50 touch-none overflow-y-auto modal-container"
       onClick={onClose}
+      style={{ 
+        alignItems: 'flex-start', 
+        paddingTop: 'calc(50vh - 150px)', // Default position in middle of screen for desktop 
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
     >
       <div 
         className="absolute inset-0 bg-black/20 backdrop-blur-sm" 
@@ -165,11 +197,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content }) => {
           stiffness: 300,
           duration: 0.3 
         }}
-        className="relative z-10 w-[92%] max-w-lg overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-b from-white to-amber-50/80 p-4 md:p-6 shadow-xl backdrop-blur-sm max-h-[80vh] md:max-h-[90vh] overflow-y-auto"
+        className="relative z-10 mx-auto w-[92%] max-w-lg overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-b from-white to-amber-50/80 p-4 md:p-6 shadow-xl backdrop-blur-sm max-h-[80vh] md:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
+        style={{
+          // On mobile, position the modal based on user's viewport position
+          marginTop: typeof window !== 'undefined' && window.innerWidth < 768 ? '20px' : 'auto',
+        }}
       >
         {/* Swipe indicator for mobile */}
         <div className="w-16 h-1.5 bg-amber-200/60 rounded-full mx-auto mb-4 md:hidden"></div>
@@ -184,7 +220,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content }) => {
         </button>
         
         <div className="pt-2 md:pt-0">
-          <h3 className="text-xl md:text-2xl font-semibold text-amber-800 mb-2 md:mb-4 pr-8">
+          <h3 id="modal-title" className="text-xl md:text-2xl font-semibold text-amber-800 mb-2 md:mb-4 pr-8">
             {title}
           </h3>
           
@@ -340,11 +376,28 @@ export default function Home() {
   const heroRef = useRef(null)
   
   const openModal = (title: string, content: string): void => {
+    // Save current scroll position
+    const currentScrollY = window.scrollY;
+    
+    // Set modal content
     setModalContent({
       isOpen: true,
       title,
       content
     });
+    
+    // On mobile, ensure the modal is visible in the viewport
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      // Use a short timeout to allow the modal to render before adjusting
+      setTimeout(() => {
+        // Find the modal element
+        const modalElement = document.querySelector('.modal-container');
+        if (modalElement) {
+          // Ensure the modal is in view
+          modalElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
   };
 
   const closeModal = (): void => {
