@@ -1,9 +1,9 @@
 "use client"
 
-import type React from "react"
-
+import * as React from "react"
 import { useRef, useEffect } from "react"
-import { motion, useInView, useAnimation } from "framer-motion"
+import { useInView, useAnimation } from "framer-motion"
+import { MotionDiv } from "../ui/motion"
 
 interface StaggerChildrenProps {
   children: React.ReactNode
@@ -29,7 +29,7 @@ export const StaggerChildren = ({
   }, [isInView, controls])
 
   return (
-    <motion.div
+    <MotionDiv
       ref={ref}
       initial="hidden"
       animate={controls}
@@ -42,10 +42,10 @@ export const StaggerChildren = ({
           },
         },
       }}
-      className={className}
+      className={`scroll-fixed ${className}`}
     >
       {children}
-    </motion.div>
+    </MotionDiv>
   )
 }
 
@@ -57,7 +57,7 @@ export const StaggerItem = ({
   className?: string
 }) => {
   return (
-    <motion.div
+    <MotionDiv
       variants={{
         hidden: { opacity: 0, y: 20 },
         visible: {
@@ -72,7 +72,7 @@ export const StaggerItem = ({
       className={className}
     >
       {children}
-    </motion.div>
+    </MotionDiv>
   )
 }
 

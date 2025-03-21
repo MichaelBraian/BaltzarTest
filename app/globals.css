@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fix mobile viewport height issue */
+@supports (height: 100dvh) {
+  :root {
+    --vh: 1dvh;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -39,6 +46,9 @@
     --chart-3: 38 92% 30%;
     --chart-4: 38 92% 20%;
     --chart-5: 38 92% 10%;
+    
+    /* Mobile viewport height fix */
+    --vh: 1vh;
   }
 
   .dark {
@@ -76,14 +86,80 @@
   * {
     @apply border-border;
   }
-  body {
+  html, body {
     @apply bg-background text-foreground;
+    min-height: 100%;
+    position: relative; /* Ensure the root elements are positioned */
+    overscroll-behavior: none; /* Prevent pull-to-refresh on mobile */
+  }
+  body {
+    -webkit-tap-highlight-color: transparent; /* Removes tap highlight on iOS */
+    overscroll-behavior-y: none; /* Prevent overscroll on iOS */
+    -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+    scroll-behavior: smooth; /* Enable smooth scrolling */
+    touch-action: manipulation; /* Prevent double-tap to zoom */
+    text-size-adjust: 100%; /* Prevent text size adjustment on orientation change */
+  }
+  
+  /* Improve button and interactive element sizes for touch */
+  button, 
+  a, 
+  [role="button"], 
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"] {
+    touch-action: manipulation;
   }
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* Better input experience on mobile */
+input, 
+textarea, 
+select, 
+button {
+  font-size: 16px; /* Prevents zoom on focus in iOS */
+  max-width: 100%; /* Prevent overflow on small screens */
+}
+
+/* Ensure containers with scrolling have proper positioning */
+.overflow-y-auto,
+.overflow-x-auto,
+.overflow-auto,
+[data-motion-scroll-container],
+[data-scroll],
+.scroll-container,
+[data-scroll-container],
+[data-framer-scroll-container],
+[data-animated],
+.animated {
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Special handling for Framer Motion scroll animations */
+[data-scroll-target],
+.parallax-container,
+.scroll-progress-container,
+.scroll-trigger {
+  position: relative !important;
+}
+
+/* Utility class for fixing scroll containers */
+.scroll-fixed {
+  position: relative !important;
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix touch handling for draggable elements (improves mobile UX) */
+[data-drag-handle],
+[data-draggable="true"],
+[draggable="true"] {
+  touch-action: pan-x pan-y;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Custom scrollbar */
@@ -104,8 +180,124 @@ html {
   background: #f59e0b;
 }
 
+/* Hide scrollbar on mobile but keep functionality */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 3px;
+  }
+  
+  .overflow-y-auto {
+    scrollbar-width: thin;
+  }
+  
+  /* Improve touch targets on mobile */
+  a, button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 /* Gradient text utility */
 .gradient-text {
   @apply bg-gradient-to-r from-amber-500 to-amber-700 bg-clip-text text-transparent;
+}
+
+/* Media query utility classes */
+@layer utilities {
+  .mobile-only {
+    @apply block md:hidden;
+  }
+  
+  .desktop-only {
+    @apply hidden md:block;
+  }
+  
+  /* Utility for applying better touch targets on mobile */
+  .touch-target {
+    @apply p-2 md:p-1;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Mobile-first safe area insets */
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+  
+  /* True viewport height that works on mobile */
+  .h-screen-real {
+    height: calc(var(--vh, 1vh) * 100);
+  }
+  
+  .min-h-screen-real {
+    min-height: calc(var(--vh, 1vh) * 100);
+  }
+  
+  /* Background loading states */
+  .bg-loading {
+    opacity: 0;
+  }
+  
+  .bg-loaded {
+    opacity: 1;
+  }
+  
+  /* Mobile-friendly spacing utilities */
+  .py-safe {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+  
+  .px-safe {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  
+  /* Mobile-first responsive text sizes */
+  .text-responsive {
+    @apply text-base md:text-lg lg:text-xl;
+  }
+  
+  .heading-responsive {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+  }
+}
+
+/* Animation keyframes */
+@keyframes ripple {
+  from {
+    opacity: 1;
+    transform: scale(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s linear;
+}
+
+/* Improved focus styles for keyboard users */
+:focus-visible {
+  @apply outline-none ring-2 ring-amber-500 ring-offset-2;
+}
+
+/* Fix for mobile iOS 100vh issue */
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+  }
+  .h-screen {
+    height: -webkit-fill-available;
+  }
 }
 

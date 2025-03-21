@@ -1,10 +1,13 @@
+"use client";
+
 import React from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 const ErrorPage: React.FC = () => {
-  const location = useLocation();
-  const errorMessage = location.state?.message || 'An unknown error occurred';
-  const errorCode = location.state?.code || '500';
+  const searchParams = useSearchParams();
+  const errorMessage = searchParams.get('message') || 'An unknown error occurred';
+  const errorCode = searchParams.get('code') || '500';
 
   return (
     <div className="error-page">
@@ -12,7 +15,7 @@ const ErrorPage: React.FC = () => {
       <div className="error-container">
         <p className="error-message">{errorMessage}</p>
         <div className="error-actions">
-          <Link to="/" className="button primary-button">
+          <Link href="/" className="button primary-button">
             Return to Home
           </Link>
           <button 

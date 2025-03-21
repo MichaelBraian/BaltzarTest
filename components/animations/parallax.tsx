@@ -1,9 +1,9 @@
 "use client"
 
-import type React from "react"
-
+import * as React from "react"
 import { useRef } from "react"
-import { motion, useScroll, useTransform } from "framer-motion"
+import { useScroll, useTransform } from "framer-motion"
+import { MotionDiv } from "../ui/motion"
 
 interface ParallaxProps {
   children: React.ReactNode
@@ -23,8 +23,8 @@ export const Parallax = ({ children, speed = 0.5, className = "", direction = "u
   const y = useTransform(scrollYProgress, [0, 1], [0, factor])
 
   return (
-    <div ref={ref} className={`relative overflow-hidden ${className}`}>
-      <motion.div style={{ y }}>{children}</motion.div>
+    <div ref={ref} className={`relative overflow-hidden scroll-fixed ${className}`}>
+      <MotionDiv style={{ y }}>{children}</MotionDiv>
     </div>
   )
 }

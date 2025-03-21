@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { motion } from "framer-motion"
-import { cn } from "@/lib/utils"
-import { Button, type ButtonProps } from "@/components/ui/button"
+import { MotionDiv } from "./motion"
+import { cn } from "../../lib/utils"
+import { Button, type ButtonProps } from "./button"
 
-interface TechButtonProps extends ButtonProps {
+export interface TechButtonProps extends ButtonProps {
   glowColor?: string
+  children: React.ReactNode
 }
 
 export function TechButton({ children, className, glowColor = "rgba(217, 119, 6, 0.5)", ...props }: TechButtonProps) {
@@ -15,7 +16,7 @@ export function TechButton({ children, className, glowColor = "rgba(217, 119, 6,
   return (
     <div className="relative">
       {isHovered && (
-        <motion.div
+        <MotionDiv
           className="absolute inset-0 rounded-lg blur-xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -34,7 +35,7 @@ export function TechButton({ children, className, glowColor = "rgba(217, 119, 6,
         {...props}
       >
         <span className="relative z-10">{children}</span>
-        <motion.div
+        <MotionDiv
           className="absolute inset-0 bg-gradient-to-r from-amber-500 to-amber-400"
           initial={{ x: "-100%" }}
           animate={{ x: isHovered ? "0%" : "-100%" }}

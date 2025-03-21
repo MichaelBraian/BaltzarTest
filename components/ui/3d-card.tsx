@@ -3,8 +3,8 @@
 import type React from "react"
 
 import { useState, useRef, type ReactNode } from "react"
-import { motion } from "framer-motion"
-import { cn } from "@/lib/utils"
+import { MotionDiv } from "./motion"
+import { cn } from "../../lib/utils"
 
 interface ThreeDCardProps {
   children: ReactNode
@@ -50,7 +50,7 @@ export function ThreeDCard({ children, className, glareOpacity = 0.2, rotationIn
   }
 
   return (
-    <motion.div
+    <MotionDiv
       ref={cardRef}
       className={cn("relative overflow-hidden", className)}
       onMouseMove={handleMouseMove}
@@ -77,7 +77,7 @@ export function ThreeDCard({ children, className, glareOpacity = 0.2, rotationIn
           background: `radial-gradient(circle at ${glarePosition.x}% ${glarePosition.y}%, rgba(255, 255, 255, ${glareOpacity}), transparent 50%)`,
         }}
       />
-    </motion.div>
+    </MotionDiv>
   )
 }
 

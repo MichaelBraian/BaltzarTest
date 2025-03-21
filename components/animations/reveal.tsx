@@ -1,9 +1,9 @@
 "use client"
 
-import type React from "react"
-
+import * as React from "react"
 import { useRef, useEffect } from "react"
-import { motion, useInView, useAnimation } from "framer-motion"
+import { useInView, useAnimation } from "framer-motion"
+import { MotionDiv } from "../ui/motion"
 
 interface RevealProps {
   children: React.ReactNode
@@ -12,6 +12,13 @@ interface RevealProps {
   duration?: number
   from?: "bottom" | "left" | "right" | "top"
   className?: string
+}
+
+// Define a type for our animation variants
+interface AnimationVariant {
+  opacity: number;
+  x?: number;
+  y?: number;
 }
 
 export const Reveal = ({
@@ -28,8 +35,8 @@ export const Reveal = ({
 
   const getVariants = () => {
     const variants = {
-      hidden: { opacity: 0 },
-      visible: { opacity: 1 },
+      hidden: { opacity: 0 } as AnimationVariant,
+      visible: { opacity: 1 } as AnimationVariant,
     }
 
     switch (from) {
@@ -62,7 +69,7 @@ export const Reveal = ({
 
   return (
     <div ref={ref} style={{ width }} className={className}>
-      <motion.div
+      <MotionDiv
         variants={getVariants()}
         initial="hidden"
         animate={controls}
@@ -73,7 +80,7 @@ export const Reveal = ({
         }}
       >
         {children}
-      </motion.div>
+      </MotionDiv>
     </div>
   )
 }
