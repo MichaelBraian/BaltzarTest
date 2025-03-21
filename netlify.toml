@@ -5,8 +5,9 @@
 [build.environment]
   NODE_VERSION = "18.18.0"
   NPM_VERSION = "9.8.1"
+  NEXT_TELEMETRY_DISABLED = "1"
 
-# Set cache headers for static assets and images
+# Performance optimizations - Caching
 [[headers]]
   for = "/static/*"
   [headers.values]
@@ -14,6 +15,21 @@
 
 [[headers]]
   for = "/_next/image/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_next/static/chunks/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_next/static/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    
+[[headers]]
+  for = "/fonts/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
@@ -25,7 +41,9 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Content-Type-Options = "nosniff"
+    Permissions-Policy = "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://hebbkx1anhila5yf.public.blob.vercel-storage.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https:; frame-src 'self' https://www.google.com;"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
 
 # Redirect all routes to index.html for client-side routing
 [[redirects]]
@@ -45,4 +63,12 @@
 [build.processing.html]
   pretty_urls = true
 [build.processing.images]
-  compress = true 
+  compress = true
+
+# Cache optimization
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Plugin for optimizing images
+[[plugins]]
+  package = "netlify-plugin-image-optim" 

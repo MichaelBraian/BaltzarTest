@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { 
   Cpu, 
   Database, 
@@ -53,12 +53,48 @@ export const TechnologySection: React.FC<TechnologySectionProps> = ({
   
   const [activePopover, setActivePopover] = useState<number | null>(null);
   
+  // Lock body scroll when popover is open - simpler approach
+  useEffect(() => {
+    if (activePopover !== null) {
+      // Just disable scroll
+      document.body.style.overflow = 'hidden';
+      
+      return () => {
+        // Re-enable scroll when modal closes
+        document.body.style.overflow = '';
+      };
+    }
+  }, [activePopover]);
+  
   // References for the popover contents
   const popoverRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   // Reference assignment callback
   const setPopoverRef = useCallback((el: HTMLDivElement | null, index: number) => {
     popoverRefs.current[index] = el;
+  }, []);
+  
+  // Handle clicking outside to close
+  const closePopover = useCallback(() => {
+    setActivePopover(null);
+  }, []);
+  
+  // Handle escape key to close
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && activePopover !== null) {
+        setActivePopover(null);
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [activePopover]);
+  
+  // Open popover
+  const openPopover = useCallback((index: number) => {
+    // Store current scroll position in a ref
+    setActivePopover(index);
   }, []);
   
   // Tech items array
@@ -176,7 +212,7 @@ export const TechnologySection: React.FC<TechnologySectionProps> = ({
         overlay="rgba(0,0,0,0.5)"
         overlayOpacity={0.7}
       >
-        <div className="container mx-auto py-12 sm:py-16 lg:py-20 flex flex-col items-center w-full">
+        <div className="container mx-auto py-12 sm:py-16 lg:py-20 pb-56 flex flex-col items-center w-full">
           <Reveal className="w-full text-center">
             <h2 className="mb-4 text-center text-2xl sm:text-3xl font-bold text-white md:text-4xl w-full mx-auto">
               Digital Tandvårdsteknologi
@@ -195,11 +231,11 @@ export const TechnologySection: React.FC<TechnologySectionProps> = ({
               xl: 3
             }} 
             gap="gap-8 lg:gap-10" 
-            className="mb-8 sm:mb-12 w-full"
+            className="mb-8 sm:mb-12 w-full grid-flow-row"
           >
             {techItems.map((tech, index) => (
               <StaggerItem key={tech.title}>
-                <div className="bg-white bg-opacity-95 backdrop-blur-sm p-6 sm:p-8 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
+                <div className="bg-white bg-opacity-95 backdrop-blur-sm p-6 sm:p-8 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow min-h-[280px] flex flex-col relative">
                   <div className="mb-5 text-center">
                     <div className="flex items-center justify-center w-14 h-14 rounded-lg bg-amber-100 mb-4 mx-auto">
                       <div className="flex items-center justify-center w-8 h-8">
@@ -207,14 +243,14 @@ export const TechnologySection: React.FC<TechnologySectionProps> = ({
                       </div>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">{tech.title}</h3>
-                    <p className="text-gray-600 mb-4">{tech.description}</p>
+                    <p className="text-gray-600 line-clamp-4">{tech.description}</p>
                   </div>
                   
-                  <div className="mt-auto text-center">
+                  <div className="mt-auto pt-4 text-center">
                     {tech.expandedDescription && (
                       <div className="relative">
                         <button
-                          onClick={() => setActivePopover(activePopover === index ? null : index)}
+                          onClick={() => openPopover(index)}
                           className="inline-flex items-center text-amber-600 font-medium hover:text-amber-700 transition-colors"
                           aria-expanded={activePopover === index}
                           aria-controls={`tech-content-${index}`}
@@ -228,24 +264,38 @@ export const TechnologySection: React.FC<TechnologySectionProps> = ({
                         {/* Popover content */}
                         {activePopover === index && (
                           <div 
-                            className="absolute z-[100] top-full left-1/2 -translate-x-1/2 mt-2 w-[90vw] max-w-lg sm:w-[500px] md:w-[550px] p-5 bg-white rounded-lg shadow-lg border border-amber-100 text-left"
-                            id={`tech-content-${index}`}
-                            ref={(el) => setPopoverRef(el, index)}
+                            className="fixed inset-0 z-[999999] flex items-center justify-center p-4"
+                            style={{ backgroundColor: 'rgba(0,0,0,0.75)' }}
+                            onClick={closePopover}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby={`tech-title-${index}`}
                           >
-                            <div className="flex justify-between items-start mb-3">
-                              <h4 className="text-lg font-bold text-neutral-900">{tech.title}</h4>
-                              <button 
-                                onClick={() => setActivePopover(null)}
-                                className="text-neutral-400 hover:text-neutral-600 transition-colors"
-                                aria-label="Stäng"
-                              >
-                                <X className="h-5 w-5" />
-                              </button>
-                            </div>
                             <div 
-                              className="prose prose-sm max-w-none text-neutral-700" 
-                              dangerouslySetInnerHTML={{ __html: tech.expandedDescription ?? '' }}
-                            />
+                              className="relative bg-white rounded-lg shadow-2xl border border-amber-100 text-left w-[90vw] max-w-lg sm:w-[500px] md:w-[550px] p-5 my-4 max-h-[90vh] overflow-y-auto"
+                              onClick={(e) => e.stopPropagation()}
+                              role="document"
+                            >
+                              <div className="sticky top-0 bg-white pb-2 flex justify-between items-start mb-3 border-b border-gray-100">
+                                <h4 
+                                  id={`tech-title-${index}`} 
+                                  className="text-lg font-bold text-neutral-900"
+                                >
+                                  {tech.title}
+                                </h4>
+                                <button 
+                                  onClick={closePopover}
+                                  className="text-neutral-400 hover:text-neutral-600 transition-colors p-1"
+                                  aria-label="Stäng"
+                                >
+                                  <X className="h-5 w-5" />
+                                </button>
+                              </div>
+                              <div 
+                                className="prose prose-sm max-w-none text-neutral-700" 
+                                dangerouslySetInnerHTML={{ __html: tech.expandedDescription ?? '' }}
+                              />
+                            </div>
                           </div>
                         )}
                       </div>

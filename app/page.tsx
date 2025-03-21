@@ -6,6 +6,7 @@ import { useFocusManagement } from "../hooks/useFocusManagement"
 import { AppProviders } from "../components/app-providers"
 import { Header } from "../components/sections/header"
 import FooterSection from "../components/sections/footer-section"
+import { useAppContext } from "../contexts/AppContext"
 
 // Import all sections directly
 import { HeroSection } from "../components/sections/hero-section"
@@ -27,6 +28,9 @@ function HomeContent() {
     trapFocus: false,
     restoreFocus: true
   });
+
+  // Get context
+  const { openModal } = useAppContext();
   
   const heroRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
@@ -70,7 +74,6 @@ function HomeContent() {
           secondaryButtonText="Läs mer om oss"
           onCtaClick={() => {
             // Open your modal or handle navigation
-            const { openModal } = require("../contexts/AppContext").useAppContext();
             openModal(
               "Digital Tandvård på Baltzar", 
               `<p>På Baltzar Tandvård kombinerar vi den senaste digitala tekniken med högklassig personlig service för att ge dig bästa möjliga tandvård.</p>
@@ -81,7 +84,6 @@ function HomeContent() {
           }}
           onSecondaryClick={() => {
             // Open the secondary modal
-            const { openModal } = require("../contexts/AppContext").useAppContext();
             openModal(
               "Om vår klinik", 
               `<p>Baltzar Tandvård representerar en ny generation av tandvårdskliniker där digital teknologi står i centrum för alla behandlingar.</p>

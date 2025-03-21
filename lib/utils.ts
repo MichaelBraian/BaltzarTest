@@ -48,13 +48,13 @@ export function truncateString(str: string, maxLength: number = 50): string {
  * 
  * @example const debouncedFn = debounce(() => console.log('Resized'), 300)
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
   fn: T,
   ms: number = 300
 ): (...args: Parameters<T>) => void {
   let timeoutId: ReturnType<typeof setTimeout>
   
-  return function(this: any, ...args: Parameters<T>) {
+  return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
     clearTimeout(timeoutId)
     timeoutId = setTimeout(() => fn.apply(this, args), ms)
   }
@@ -91,13 +91,17 @@ export function formatCurrency(amount: number, locale: string = 'sv-SE', currenc
  * 
  * @example getNestedValue({ user: { profile: { name: 'John' } } }, 'user.profile.name') // 'John'
  */
-export function getNestedValue<T = any>(obj: Record<string, any>, path: string, defaultValue?: T): T | undefined {
+export function getNestedValue<T, K extends Record<string, unknown>>(
+  obj: K, 
+  path: string, 
+  defaultValue?: T
+): T | undefined {
   const keys = path.split('.')
-  let result = obj
+  let result: unknown = obj
   
   for (const key of keys) {
     if (result === undefined || result === null) return defaultValue
-    result = result[key]
+    result = (result as Record<string, unknown>)[key]
   }
   
   return (result as T) ?? defaultValue

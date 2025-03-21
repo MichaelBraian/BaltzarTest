@@ -80,13 +80,24 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   
   const onSubmit = async (data: FormValues) => {
     setFormStatus('submitting');
+    setErrorMessage(""); // Clear any previous error message
     
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Simulate successful submission
-      console.log("Form submitted:", data);
+      // In a real application, you would make an API call here
+      // const response = await fetch('/api/contact', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(data)
+      // });
+      // 
+      // if (!response.ok) {
+      //   throw new Error(`Server responded with status: ${response.status}`);
+      // }
+      
       setFormStatus('success');
       form.reset();
       
@@ -95,9 +106,22 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
         setFormStatus('idle');
       }, 5000);
     } catch (error) {
-      console.error("Error submitting form:", error);
+      // Type narrowing for better error handling
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Ett okänt problem uppstod";
+      
+      // Log the detailed error for developers
+      // In production, this should be sent to a logging service
+      console.error("Error submitting contact form:", {
+        error,
+        formData: data,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Set user-friendly error message
       setFormStatus('error');
-      setErrorMessage("Ett problem uppstod. Vänligen försök igen senare.");
+      setErrorMessage("Ett problem uppstod vid skickande av formuläret. Vänligen försök igen senare.");
       
       // Reset error status after 5 seconds
       setTimeout(() => {
