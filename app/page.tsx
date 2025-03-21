@@ -1,28 +1,19 @@
 "use client"
 
-import React, { useRef, lazy, Suspense } from "react"
+import React, { useRef } from "react"
 import { useScrollEffect } from "../hooks/useScrollEffect"
 import { useFocusManagement } from "../hooks/useFocusManagement"
 import { AppProviders } from "../components/app-providers"
 import { Header } from "../components/sections/header"
-import { Footer } from "../components/sections/footer"
-import { LazyComponent } from "../components/ui/lazy-component"
+import FooterSection from "../components/sections/footer-section"
 
-// Import components for initial rendering and type checking
-import { Hero } from "../components/sections/hero"
-import { About } from "../components/sections/about"
-
-// Lazy load below-the-fold sections for better performance
-const Services = lazy(() => import("../components/sections/services").then(mod => ({ default: mod.Services })));
-const Technology = lazy(() => import("../components/sections/technology").then(mod => ({ default: mod.Technology })));
-const Contact = lazy(() => import("../components/sections/contact").then(mod => ({ default: mod.Contact })));
-
-// Loading placeholder
-const SectionPlaceholder = () => (
-  <div className="flex h-40 w-full items-center justify-center" aria-hidden="true">
-    <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-300 border-t-transparent"></div>
-  </div>
-);
+// Import all sections directly
+import { HeroSection } from "../components/sections/hero-section"
+import { AboutSection } from "../components/sections/about-section"
+import { TechnologySection } from "../components/sections/technology-section"
+import { ServicesSection } from "../components/sections/services-section"
+import { ContactSection } from "../components/sections/contact-section"
+import RegionSkaneSection from "../components/sections/region-skane-section"
 
 function HomeContent() {
   // Use scroll effect hook for header behavior
@@ -71,47 +62,59 @@ function HomeContent() {
         className="relative min-h-screen overflow-hidden" 
         ref={containerRef as React.RefObject<HTMLDivElement>}
       >
-        {/* Hero Section - Always load immediately */}
-        <Hero heroRef={heroRef} />
+        {/* Hero Section */}
+        <HeroSection 
+          title="Digital Precision, Personlig Omsorg"
+          subtitle="Välkommen till framtidens tandvård – där teknisk innovation möter omtänksam behandling för bästa resultat."
+          ctaText="Boka konsultation"
+          secondaryButtonText="Läs mer om oss"
+          onCtaClick={() => {
+            // Open your modal or handle navigation
+            const { openModal } = require("../contexts/AppContext").useAppContext();
+            openModal(
+              "Digital Tandvård på Baltzar", 
+              `<p>På Baltzar Tandvård kombinerar vi den senaste digitala tekniken med högklassig personlig service för att ge dig bästa möjliga tandvård.</p>
+              <p>Vårt team av specialister använder avancerad 3D-scanning, AI-diagnostik och digital planering för precisionsbehandlingar med optimala resultat.</p>
+              <p>Vi erbjuder allt från invisalign ortodonti och tandimplantat till estetisk tandvård, allt utformat med digitala verktyg för maximal komfort och minimala ingrepp.</p>
+              <p>Boka en tid idag för att uppleva skillnaden med digital tandvård på Baltzar.</p>`
+            );
+          }}
+          onSecondaryClick={() => {
+            // Open the secondary modal
+            const { openModal } = require("../contexts/AppContext").useAppContext();
+            openModal(
+              "Om vår klinik", 
+              `<p>Baltzar Tandvård representerar en ny generation av tandvårdskliniker där digital teknologi står i centrum för alla behandlingar.</p>
+              <p>Vår klinik i centrala Malmö är utrustad med den senaste teknologin för 3D-scanning, digital behandlingsplanering och minimalt invasiva ingrepp.</p>
+              <p>Vi har specialister inom:</p>
+              <ul>
+                <li>Digital implantatbehandling</li>
+                <li>Estetisk tandvård</li>
+                <li>Ortodonti med Invisalign</li>
+                <li>Digital protetik med eget laboratorium</li>
+              </ul>
+              <p>Välkommen att upptäcka en ny standard inom modern tandvård!</p>`
+            );
+          }}
+        />
         
-        {/* Services Section - Lazy load */}
-        <LazyComponent 
-          minHeight={300} 
-          loadingFallback={<SectionPlaceholder />}
-          ariaLabel="Services section loading"
-        >
-          <Suspense fallback={<SectionPlaceholder />}>
-            <Services />
-          </Suspense>
-        </LazyComponent>
+        {/* Services Section */}
+        <ServicesSection />
         
-        {/* Technology Section - Lazy load */}
-        <LazyComponent 
-          minHeight={300} 
-          loadingFallback={<SectionPlaceholder />}
-          ariaLabel="Technology section loading"
-        >
-          <Suspense fallback={<SectionPlaceholder />}>
-            <Technology />
-          </Suspense>
-        </LazyComponent>
+        {/* Region Skåne Section - Specialist care for children and young adults */}
+        <RegionSkaneSection />
         
-        {/* About Section - Not lazy loaded */}
-        <About />
+        {/* Technology Section */}
+        <TechnologySection />
         
-        {/* Contact Section - Lazy load */}
-        <LazyComponent 
-          minHeight={300} 
-          loadingFallback={<SectionPlaceholder />}
-          ariaLabel="Contact section loading"
-        >
-          <Suspense fallback={<SectionPlaceholder />}>
-            <Contact />
-          </Suspense>
-        </LazyComponent>
+        {/* About Section */}
+        <AboutSection />
+        
+        {/* Contact Section */}
+        <ContactSection />
       </main>
 
-      <Footer />
+      <FooterSection />
     </>
   );
 }

@@ -209,9 +209,9 @@ export const Services: React.FC<ServicesProps> = (props) => {
 
   return (
     <section id="services" className="bg-white py-12 sm:py-16 lg:py-20">
-      <div className="container mx-auto flex flex-col items-center">
-        <Reveal>
-          <h2 className="mb-4 text-center text-2xl sm:text-3xl font-bold text-neutral-900 md:text-4xl">
+      <div className="container mx-auto flex flex-col items-center w-full">
+        <Reveal className="w-full text-center">
+          <h2 className="mb-4 text-center text-2xl sm:text-3xl font-bold text-neutral-900 md:text-4xl w-full mx-auto">
             Digital Specialisttandvård
           </h2>
           <p className="mx-auto mb-8 sm:mb-12 lg:mb-16 max-w-5xl text-center text-base sm:text-lg text-neutral-700">
@@ -234,12 +234,12 @@ export const Services: React.FC<ServicesProps> = (props) => {
             <StaggerItem key={service.title}>
               <div className="bg-white p-6 sm:p-8 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
                 <div className="mb-5 text-center">
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-lg bg-amber-100 mb-4 mx-auto">
-                    <div className="w-8 h-8">
+                  <div className="flex items-center justify-center w-14 h-14 rounded-lg bg-amber-100 mb-4 mx-auto">
+                    <div className="flex items-center justify-center w-8 h-8">
                       {service.icon}
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">{service.title}</h3>
                   <p className="text-gray-600 mb-4">{service.description}</p>
                 </div>
                 

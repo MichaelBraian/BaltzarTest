@@ -1,6 +1,4 @@
-"use client"
-
-import React, { useRef, useState, useCallback, useEffect } from "react"
+import React, { useState, useRef, useCallback } from 'react';
 import { 
   Cpu, 
   Database, 
@@ -12,15 +10,19 @@ import {
   ChevronRight,
   X
 } from "lucide-react"
-import { 
-  MotionDiv, 
-  Reveal, 
-  StaggerChildren, 
-  StaggerItem 
-} from "../animation-lib"
-import { TechCard } from "../ui/tech-card"
-import { ResponsiveGrid } from "../ui/responsive-container"
-import { useAppContext } from "../../contexts/AppContext"
+import BackgroundImage, { BackgroundSkeleton } from '@/components/ui/background-image';
+import { useDefaultBackgroundImage } from '@/lib/hooks/use-background-image';
+import { shouldPrioritizeImage, getResponsiveSizes } from '@/lib/image-utils';
+import placeholderImage from '@/public/placeholder.svg';
+import { ResponsiveGrid } from "@/components/ui/responsive-container";
+import { Reveal, StaggerItem } from "@/components/animation-lib";
+
+interface TechnologySectionProps {
+  /**
+   * Optional className for the section
+   */
+  className?: string;
+}
 
 // Define tech item type
 interface TechItem {
@@ -31,51 +33,28 @@ interface TechItem {
   gradient: string;
 }
 
-// Component props - make all optional
-interface TechnologyProps {
-  expandedTech?: number[];
-  toggleTechExpansion?: (index: number) => void;
-  registerTechRef?: (index: number, ref: HTMLDivElement | null) => void;
-}
-
-export const Technology: React.FC<TechnologyProps> = (props) => {
-  // Use provided props or get from context
-  const context = useAppContext();
+/**
+ * Technology section component using the default background image
+ * 
+ * To change the background, simply replace the file at:
+ * /public/images/backgrounds/sections/technology/technology-default.webp
+ */
+export const TechnologySection: React.FC<TechnologySectionProps> = ({
+  className,
+}) => {
+  // Use the default background image for the technology section
+  const { image, isLoading } = useDefaultBackgroundImage('technology');
   
-  const expandedTech = props.expandedTech ?? context.expandedTech;
-  const toggleTechExpansion = props.toggleTechExpansion ?? context.toggleTechExpansion;
-  const registerTechRef = props.registerTechRef ?? context.registerTechRef;
+  // Technology sections should prioritize loading based on visibility
+  const isPriority = shouldPrioritizeImage('technology');
+  
+  // Get the responsive sizes for the technology section
+  const sizes = getResponsiveSizes('technology');
+  
   const [activePopover, setActivePopover] = useState<number | null>(null);
   
   // References for the popover contents
   const popoverRefs = useRef<(HTMLDivElement | null)[]>([]);
-  
-  // Global click event handler to close popovers when clicking outside
-  useEffect(() => {
-    if (activePopover === null) return;
-    
-    const handleClickOutside = (event: MouseEvent) => {
-      const activeRef = popoverRefs.current[activePopover];
-      if (activeRef && !activeRef.contains(event.target as Node)) {
-        setActivePopover(null);
-      }
-    };
-    
-    // Add click listener to detect clicks outside the active popover
-    document.addEventListener('mousedown', handleClickOutside);
-    
-    // Add escape key handler to close popover with keyboard
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setActivePopover(null);
-    };
-    
-    document.addEventListener('keydown', handleEscape);
-    
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [activePopover]);
   
   // Reference assignment callback
   const setPopoverRef = useCallback((el: HTMLDivElement | null, index: number) => {
@@ -184,90 +163,102 @@ export const Technology: React.FC<TechnologyProps> = (props) => {
       gradient: "from-indigo-400 to-indigo-600",
     },
   ];
-
+  
   return (
-    <section id="technology" className="bg-amber-50 py-12 sm:py-16 lg:py-20">
-      <div className="container mx-auto flex flex-col items-center w-full">
-        <Reveal className="w-full text-center">
-          <h2 className="mb-4 text-center text-2xl sm:text-3xl font-bold text-neutral-900 md:text-4xl w-full mx-auto">
-            Digital Tandvårdsteknologi
-          </h2>
-          <p className="mx-auto mb-8 sm:mb-12 lg:mb-16 max-w-5xl text-center text-base sm:text-lg text-neutral-700">
-            På Baltzar Tandvård investerar vi i den senaste digitala teknologin för att ge dig säkrare, bekvämare och mer precisa behandlingar.
-          </p>
-        </Reveal>
+    <section id="technology" className={`relative min-h-screen ${className || ''}`}>
+      <BackgroundImage
+        src={image || placeholderImage}
+        alt="Technology background"
+        isLoading={isLoading}
+        loadingPlaceholder={<BackgroundSkeleton />}
+        priority={isPriority}
+        sizes={sizes}
+        overlay="rgba(0,0,0,0.5)"
+        overlayOpacity={0.7}
+      >
+        <div className="container mx-auto py-12 sm:py-16 lg:py-20 flex flex-col items-center w-full">
+          <Reveal className="w-full text-center">
+            <h2 className="mb-4 text-center text-2xl sm:text-3xl font-bold text-white md:text-4xl w-full mx-auto">
+              Digital Tandvårdsteknologi
+            </h2>
+            <p className="mx-auto mb-8 sm:mb-12 lg:mb-16 max-w-5xl text-center text-base sm:text-lg text-white text-opacity-90">
+              På Baltzar Tandvård investerar vi i den senaste digitala teknologin för att ge dig säkrare, bekvämare och mer precisa behandlingar.
+            </p>
+          </Reveal>
 
-        <ResponsiveGrid 
-          columns={{ 
-            xs: 1, 
-            sm: 2,
-            md: 3,
-            lg: 3,
-            xl: 4
-          }} 
-          gap="gap-8 lg:gap-10" 
-          className="mb-8 sm:mb-12 w-full"
-        >
-          {techItems.map((tech, index) => (
-            <StaggerItem key={tech.title}>
-              <div className="bg-white p-6 sm:p-8 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-                <div className="mb-5 text-center">
-                  <div className="flex items-center justify-center w-14 h-14 rounded-lg bg-amber-100 mb-4 mx-auto">
-                    <div className="flex items-center justify-center w-8 h-8">
-                      {tech.icon}
+          <ResponsiveGrid 
+            columns={{ 
+              xs: 1, 
+              sm: 2,
+              md: 3,
+              lg: 3,
+              xl: 3
+            }} 
+            gap="gap-8 lg:gap-10" 
+            className="mb-8 sm:mb-12 w-full"
+          >
+            {techItems.map((tech, index) => (
+              <StaggerItem key={tech.title}>
+                <div className="bg-white bg-opacity-95 backdrop-blur-sm p-6 sm:p-8 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
+                  <div className="mb-5 text-center">
+                    <div className="flex items-center justify-center w-14 h-14 rounded-lg bg-amber-100 mb-4 mx-auto">
+                      <div className="flex items-center justify-center w-8 h-8">
+                        {tech.icon}
+                      </div>
                     </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">{tech.title}</h3>
+                    <p className="text-gray-600 mb-4">{tech.description}</p>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">{tech.title}</h3>
-                  <p className="text-gray-600 mb-4">{tech.description}</p>
-                </div>
-                
-                <div className="mt-auto text-center">
-                  {tech.expandedDescription && (
-                    <div className="relative">
-                      <button
-                        onClick={() => setActivePopover(activePopover === index ? null : index)}
-                        className="inline-flex items-center text-amber-600 font-medium hover:text-amber-700 transition-colors"
-                        aria-expanded={activePopover === index}
-                        aria-controls={`tech-content-${index}`}
-                      >
-                        Läs mer
-                        <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${
-                          activePopover === index ? "rotate-90" : ""
-                        }`} />
-                      </button>
-                      
-                      {/* Popover content - positioned below instead of above */}
-                      {activePopover === index && (
-                        <div 
-                          className="absolute z-[100] top-full left-1/2 -translate-x-1/2 mt-2 w-[90vw] max-w-lg sm:w-[500px] md:w-[550px] p-5 bg-white rounded-lg shadow-lg border border-amber-100 text-left"
-                          id={`tech-content-${index}`}
-                          ref={(el) => setPopoverRef(el, index)}
+                  
+                  <div className="mt-auto text-center">
+                    {tech.expandedDescription && (
+                      <div className="relative">
+                        <button
+                          onClick={() => setActivePopover(activePopover === index ? null : index)}
+                          className="inline-flex items-center text-amber-600 font-medium hover:text-amber-700 transition-colors"
+                          aria-expanded={activePopover === index}
+                          aria-controls={`tech-content-${index}`}
                         >
-                          <div className="flex justify-between items-start mb-3">
-                            <h4 className="text-lg font-bold text-neutral-900">{tech.title}</h4>
-                            <button 
-                              onClick={() => setActivePopover(null)}
-                              className="text-neutral-400 hover:text-neutral-600 transition-colors"
-                              aria-label="Stäng"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
+                          Läs mer
+                          <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${
+                            activePopover === index ? "rotate-90" : ""
+                          }`} />
+                        </button>
+                        
+                        {/* Popover content */}
+                        {activePopover === index && (
                           <div 
-                            className="prose prose-sm sm:prose prose-amber max-w-none overflow-y-auto max-h-[60vh]"
-                            dangerouslySetInnerHTML={{ __html: tech.expandedDescription || "" }}
-                          />
-                          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rotate-45 w-3 h-3 bg-white border-t border-l border-amber-100"></div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                            className="absolute z-[100] top-full left-1/2 -translate-x-1/2 mt-2 w-[90vw] max-w-lg sm:w-[500px] md:w-[550px] p-5 bg-white rounded-lg shadow-lg border border-amber-100 text-left"
+                            id={`tech-content-${index}`}
+                            ref={(el) => setPopoverRef(el, index)}
+                          >
+                            <div className="flex justify-between items-start mb-3">
+                              <h4 className="text-lg font-bold text-neutral-900">{tech.title}</h4>
+                              <button 
+                                onClick={() => setActivePopover(null)}
+                                className="text-neutral-400 hover:text-neutral-600 transition-colors"
+                                aria-label="Stäng"
+                              >
+                                <X className="h-5 w-5" />
+                              </button>
+                            </div>
+                            <div 
+                              className="prose prose-sm max-w-none text-neutral-700" 
+                              dangerouslySetInnerHTML={{ __html: tech.expandedDescription ?? '' }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </StaggerItem>
-          ))}
-        </ResponsiveGrid>
-      </div>
+              </StaggerItem>
+            ))}
+          </ResponsiveGrid>
+        </div>
+      </BackgroundImage>
     </section>
   );
-} 
+};
+
+export default TechnologySection; 

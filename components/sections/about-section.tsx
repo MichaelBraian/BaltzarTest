@@ -21,6 +21,17 @@ import {
 } from "../animation-lib"
 import { ResponsiveGrid } from "../ui/responsive-container"
 import { TechCard } from "../ui/tech-card"
+import BackgroundImage, { BackgroundSkeleton } from '@/components/ui/background-image';
+import { useDefaultBackgroundImage } from '@/lib/hooks/use-background-image';
+import { shouldPrioritizeImage, getResponsiveSizes } from '@/lib/image-utils';
+import placeholderImage from '@/public/placeholder.svg';
+
+interface AboutSectionProps {
+  /**
+   * Optional className for the section
+   */
+  className?: string;
+}
 
 // Define team member type
 interface TeamMember {
@@ -38,7 +49,24 @@ interface ValueItem {
   expandedDescription?: string;
 }
 
-export const About: React.FC = () => {
+/**
+ * About section component using the default background image
+ * 
+ * To change the background, simply replace the file at:
+ * /public/images/backgrounds/sections/about/about-default.webp
+ */
+export const AboutSection: React.FC<AboutSectionProps> = ({
+  className,
+}) => {
+  // Use the default background image for the about section
+  const { image, isLoading } = useDefaultBackgroundImage('about');
+  
+  // About sections should prioritize loading based on visibility
+  const isPriority = shouldPrioritizeImage('about');
+  
+  // Get the responsive sizes for the about section
+  const sizes = getResponsiveSizes('about');
+  
   // Team members array with updated information
   const teamMembers: TeamMember[] = [
     {
@@ -232,208 +260,210 @@ export const About: React.FC = () => {
   };
 
   return (
-    <section id="about" className="bg-white py-12 sm:py-16 lg:py-20">
-      <div className="container mx-auto flex flex-col items-center">
-        {/* About Us Header */}
-        <Reveal>
-          <h2 className="mb-4 text-center text-2xl sm:text-3xl font-bold text-neutral-900 md:text-4xl">
-            Om Baltzar Tandvård
-          </h2>
-          <p className="mx-auto mb-16 max-w-5xl text-center text-base sm:text-lg text-neutral-700">
-            Vi är ett team av passionerade specialister som kombinerar digital teknologi med personlig omsorg för att erbjuda tandvård i världsklass.
-          </p>
-        </Reveal>
-      
-        {/* Clinic Overview */}
-        <div className="mb-20 grid items-center gap-8 md:gap-12 lg:gap-16 md:grid-cols-2 lg:grid-cols-5 w-full max-w-7xl">
-          <div className="relative lg:col-span-2">
-            <Parallax speed={0.2}>
-              <MotionImg
-                src="/placeholder.jpg"
-                alt="Baltzar Tandvård klinik"
-                width={800}
-                height={600}
-                className="rounded-lg shadow-lg w-full h-auto"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-              />
-            </Parallax>
-            <MotionDiv
-              className="absolute -bottom-4 -right-4 h-24 w-24 rounded-full border-4 border-white bg-amber-400 shadow-lg"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-            >
-              <div className="flex h-full w-full items-center justify-center">
-                <Award className="h-12 w-12 text-white" />
-              </div>
-            </MotionDiv>
-          </div>
-          
-          <div className="lg:col-span-3">
-            <h3 className="mb-4 text-2xl font-bold text-neutral-900">Vår Digitala Filosofi</h3>
-            <p className="mb-4 text-neutral-700">
-              Baltzar Tandvård grundades 2016 med visionen att kombinera det bästa av modern digital teknologi med personlig tandvård av högsta kvalitet. På vår klinik i centrala Malmö har vi skapat en miljö där avancerad teknologi möter klinisk expertis.
+    <section id="about" className={`relative ${className || ''}`}>
+      <BackgroundImage
+        src={image || placeholderImage}
+        alt="About background"
+        isLoading={isLoading}
+        loadingPlaceholder={<BackgroundSkeleton />}
+        priority={isPriority}
+        sizes={sizes}
+        overlay="rgba(255,255,255,0.9)"
+        overlayOpacity={0.7}
+      >
+        <div className="container mx-auto flex flex-col items-center py-12 sm:py-16 lg:py-20">
+          {/* About Us Header */}
+          <Reveal>
+            <h2 className="mb-4 text-center text-2xl sm:text-3xl font-bold text-neutral-900 md:text-4xl">
+              Om Baltzar Tandvård
+            </h2>
+            <p className="mx-auto mb-16 max-w-5xl text-center text-base sm:text-lg text-neutral-700">
+              Vi är ett team av passionerade specialister som kombinerar digital teknologi med personlig omsorg för att erbjuda tandvård i världsklass.
             </p>
-            <p className="mb-6 text-neutral-700">
-              Vi tror på kraften i digital precision - från 3D-scanners och AI-assisterad diagnostik till digitalt designade proteser och minimalt invasiva behandlingar. Varje aspekt av vår verksamhet genomsyras av ett digitalt tänkande som förbättrar både resultat och patientupplevelse.
-            </p>
+          </Reveal>
+        
+          {/* Clinic Overview */}
+          <div className="mb-20 grid items-center gap-8 md:gap-12 lg:gap-16 md:grid-cols-2 lg:grid-cols-5 w-full max-w-7xl">
+            <div className="relative lg:col-span-2">
+              <Parallax speed={0.2}>
+                <div className="relative overflow-hidden rounded-xl">
+                  <Image
+                    src="/images/clinic/clinic-reception.jpg"
+                    alt="Baltzar Tandvård Klinik"
+                    width={600}
+                    height={800}
+                    className="h-auto w-full object-cover rounded-xl"
+                  />
+                </div>
+              </Parallax>
+            </div>
             
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center rounded-full bg-amber-100 px-4 py-2">
-                <span className="text-sm font-medium text-amber-800">Digital Excellens</span>
-              </div>
-              <div className="flex items-center rounded-full bg-amber-100 px-4 py-2">
-                <span className="text-sm font-medium text-amber-800">Specialistkompetens</span>
-              </div>
-              <div className="flex items-center rounded-full bg-amber-100 px-4 py-2">
-                <span className="text-sm font-medium text-amber-800">Personlig Omsorg</span>
-              </div>
-              <div className="flex items-center rounded-full bg-amber-100 px-4 py-2">
-                <span className="text-sm font-medium text-amber-800">Kontinuerlig Innovation</span>
+            <div className="flex flex-col lg:col-span-3">
+              <h3 className="mb-4 text-xl sm:text-2xl font-bold text-neutral-900">
+                Modern tandvård i centrala Malmö
+              </h3>
+              <p className="mb-6 text-neutral-700">
+                Baltzar Tandvård grundades med visionen att kombinera det bästa av modern digital tandvårdsteknologi med personligt anpassad vård i en avslappnad och välkomnande miljö. Vår klinik i hjärtat av Malmö är utrustad med den senaste tekniken för att erbjuda precision, komfort och resultat av högsta kvalitet.
+              </p>
+              
+              <div className="mt-4">
+                <ResponsiveGrid 
+                  columns={{ xs: 1, sm: 2 }} 
+                  gap="gap-4"
+                  className="w-full"
+                >
+                  {values.map((value, index) => (
+                    <div 
+                      key={value.title} 
+                      className="bg-neutral-50 p-4 rounded-lg border border-neutral-100 hover:shadow-sm transition-shadow"
+                    >
+                      <div className="flex items-start mb-1">
+                        <div className="mr-3 flex-shrink-0">
+                          {value.icon}
+                        </div>
+                        <div>
+                          <h4 className="text-base font-semibold text-neutral-900">{value.title}</h4>
+                          <p className="text-sm text-neutral-600">{value.description}</p>
+                          
+                          {value.expandedDescription && (
+                            <div className="mt-2 relative">
+                              <button
+                                onClick={() => setActiveValuePopover(activeValuePopover === index ? null : index)}
+                                className="inline-flex items-center text-amber-600 text-sm font-medium hover:text-amber-700 transition-colors"
+                                aria-expanded={activeValuePopover === index}
+                                aria-controls={`value-content-${index}`}
+                              >
+                                Läs mer
+                                <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${
+                                  activeValuePopover === index ? "rotate-90" : ""
+                                }`} />
+                              </button>
+                              
+                              {activeValuePopover === index && (
+                                <div 
+                                  className="absolute z-50 top-full left-0 mt-2 w-[90vw] max-w-md bg-white rounded-lg shadow-lg border border-neutral-200 p-4"
+                                  id={`value-content-${index}`}
+                                  ref={(el) => setValuePopoverRef(el, index)}
+                                >
+                                  <div className="flex justify-between items-start mb-2">
+                                    <h5 className="text-lg font-bold text-neutral-900">{value.title}</h5>
+                                    <button 
+                                      onClick={() => setActiveValuePopover(null)}
+                                      className="text-neutral-400 hover:text-neutral-600 transition-colors"
+                                      aria-label="Stäng"
+                                    >
+                                      <X className="h-5 w-5" />
+                                    </button>
+                                  </div>
+                                  <div 
+                                    className="prose prose-sm max-w-none" 
+                                    dangerouslySetInnerHTML={{ __html: value.expandedDescription ?? '' }}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </ResponsiveGrid>
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Våra Värderingar Section */}
-        <Reveal className="w-full text-center">
-          <h2 className="mb-4 text-center text-2xl sm:text-3xl font-bold text-neutral-900 md:text-4xl w-full mx-auto">
-            Våra Värderingar
-          </h2>
-          <p className="mx-auto mb-8 sm:mb-12 lg:mb-16 max-w-5xl text-center text-base sm:text-lg text-neutral-700">
-            Det här är principerna som vägleder vårt arbete och formar vår patientcentrerade approach till modern tandvård.
-          </p>
-        </Reveal>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 lg:gap-10 mb-20 w-full">
-          {values.map((value, index) => (
-            <div key={value.title} className="bg-white p-6 sm:p-8 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
-              <div className="mb-5 text-center">
-                <div className="flex items-center justify-center w-14 h-14 rounded-lg bg-amber-100 mb-4 mx-auto">
-                  <div className="flex items-center justify-center w-8 h-8">
-                    {value.icon}
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 text-center">{value.title}</h3>
-                <p className="text-gray-600 mb-4">{value.description}</p>
-              </div>
-              
-              <div className="mt-auto text-center">
-                {value.expandedDescription && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setActiveValuePopover(activeValuePopover === index ? null : index)}
-                      className="inline-flex items-center text-amber-600 font-medium hover:text-amber-700 transition-colors"
-                      aria-expanded={activeValuePopover === index}
-                      aria-controls={`value-content-${index}`}
-                    >
-                      Läs mer
-                      <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${
-                        activeValuePopover === index ? "rotate-90" : ""
-                      }`} />
-                    </button>
-                    
-                    {/* Popover content - positioned below instead of above */}
-                    {activeValuePopover === index && (
-                      <div 
-                        className="absolute z-[100] top-full left-1/2 -translate-x-1/2 mt-2 w-[90vw] max-w-lg sm:w-[500px] md:w-[550px] p-5 bg-white rounded-lg shadow-lg border border-amber-100 text-left"
-                        id={`value-content-${index}`}
-                        ref={(el) => setValuePopoverRef(el, index)}
-                      >
-                        <div className="flex justify-between items-start mb-3">
-                          <h4 className="text-lg font-bold text-neutral-900">{value.title}</h4>
-                          <button 
-                            onClick={() => setActiveValuePopover(null)}
-                            className="text-neutral-400 hover:text-neutral-600 transition-colors"
-                            aria-label="Stäng"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                        <div 
-                          className="prose prose-sm sm:prose prose-amber max-w-none overflow-y-auto max-h-[60vh]"
-                          dangerouslySetInnerHTML={{ __html: value.expandedDescription || "" }}
-                        />
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rotate-45 w-3 h-3 bg-white border-t border-l border-amber-100"></div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        {/* Team Section */}
-        <Reveal>
-          <h2 className="mb-4 text-center text-2xl sm:text-3xl font-bold text-neutral-900 md:text-4xl">
-            Vårt Team av Specialister
-          </h2>
-          <p className="mx-auto mb-8 sm:mb-12 lg:mb-16 max-w-5xl text-center text-base sm:text-lg text-neutral-700">
-            Möt experterna bakom Baltzar Tandvård – en unik kombination av digitala pionjärer och erfarna kliniker.
-          </p>
-        </Reveal>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 lg:gap-10 mb-8 sm:mb-12 w-full">
-          {teamMembers.map((member, index) => (
-            <div key={member.name} className="bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col overflow-hidden">
-              <div className="h-64 relative">
-                <img 
-                  src={member.image} 
-                  alt={member.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-6 sm:p-8 flex flex-col flex-grow">
-                <h4 className="text-xl font-bold text-gray-900 mb-2">{member.name}</h4>
-                <p className="text-sm font-medium text-amber-600 mb-3">{member.role}</p>
-                
-                <div className="mt-auto relative">
-                  <button
-                    onClick={() => toggleTeamMember(index)}
-                    className="inline-flex items-center text-amber-600 font-medium hover:text-amber-700 transition-colors"
-                    aria-expanded={activeTeamMember === index}
-                    aria-controls={`team-content-${index}`}
-                  >
-                    Läs mer
-                    <ChevronRight 
-                      className={`ml-1 h-4 w-4 transition-transform ${
-                        activeTeamMember === index ? "rotate-90" : ""
-                      }`} 
-                    />
-                  </button>
-                  
-                  {/* Popover content - positioned below instead of above */}
-                  {activeTeamMember === index && (
+
+          {/* Team Section */}
+          <div className="w-full">
+            <Reveal>
+              <h3 className="mb-8 text-center text-xl sm:text-2xl font-bold text-neutral-900">
+                Möt vårt team
+              </h3>
+            </Reveal>
+            
+            <StaggerChildren>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                {teamMembers.map((member, index) => (
+                  <StaggerItem key={member.name}>
                     <div 
-                      className="absolute z-[100] top-full left-1/2 -translate-x-1/2 mt-2 w-[90vw] max-w-lg sm:w-[500px] md:w-[550px] p-5 bg-white rounded-lg shadow-lg border border-amber-100 text-left"
-                      id={`team-content-${index}`}
-                      ref={(el) => setTeamMemberPopoverRef(el, index)}
+                      className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border border-neutral-100 cursor-pointer"
+                      onClick={() => toggleTeamMember(index)}
                     >
-                      <div className="flex justify-between items-start mb-3">
-                        <h4 className="text-lg font-bold text-neutral-900">{member.name}</h4>
-                        <button 
-                          onClick={() => setActiveTeamMember(null)}
-                          className="text-neutral-400 hover:text-neutral-600 transition-colors"
-                          aria-label="Stäng"
+                      <div className="mx-auto mb-4 relative h-48 w-48 overflow-hidden rounded-full">
+                        <Image 
+                          src={member.image}
+                          alt={member.name}
+                          width={200}
+                          height={200}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <h4 className="text-center text-xl font-bold text-neutral-900">{member.name}</h4>
+                      <p className="text-center text-sm text-neutral-500 mb-4">{member.role}</p>
+                      
+                      <div className="text-center">
+                        <button
+                          className="inline-flex items-center text-amber-600 text-sm font-medium hover:text-amber-700 transition-colors"
+                          aria-expanded={activeTeamMember === index}
+                          aria-controls={`team-member-${index}`}
                         >
-                          <X className="h-4 w-4" />
+                          Läs mer
+                          <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${
+                            activeTeamMember === index ? "rotate-90" : ""
+                          }`} />
                         </button>
+                        
+                        {activeTeamMember === index && (
+                          <div 
+                            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+                            onClick={(e) => {
+                              if (e.target === e.currentTarget) setActiveTeamMember(null);
+                            }}
+                          >
+                            <div 
+                              className="bg-white rounded-xl shadow-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                              id={`team-member-${index}`}
+                              ref={(el) => setTeamMemberPopoverRef(el, index)}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <div className="flex justify-between items-start mb-6">
+                                <div className="flex items-center">
+                                  <div className="mr-4 h-16 w-16 overflow-hidden rounded-full flex-shrink-0">
+                                    <Image 
+                                      src={member.image}
+                                      alt={member.name}
+                                      width={64}
+                                      height={64}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-xl font-bold text-neutral-900">{member.name}</h4>
+                                    <p className="text-sm text-neutral-500">{member.role}</p>
+                                  </div>
+                                </div>
+                                <button 
+                                  onClick={() => setActiveTeamMember(null)}
+                                  className="text-neutral-400 hover:text-neutral-600 transition-colors"
+                                  aria-label="Stäng"
+                                >
+                                  <X className="h-6 w-6" />
+                                </button>
+                              </div>
+                              <p className="text-neutral-700">{member.bio}</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div className="prose prose-sm sm:prose prose-amber max-w-none overflow-y-auto max-h-[60vh]">
-                        <p>{member.bio}</p>
-                      </div>
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rotate-45 w-3 h-3 bg-white border-t border-l border-amber-100"></div>
                     </div>
-                  )}
-                </div>
+                  </StaggerItem>
+                ))}
               </div>
-            </div>
-          ))}
+            </StaggerChildren>
+          </div>
         </div>
-      </div>
+      </BackgroundImage>
     </section>
   );
-} 
+};
+
+export default AboutSection; 
