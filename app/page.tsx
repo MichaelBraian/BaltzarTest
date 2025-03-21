@@ -1506,7 +1506,7 @@ export default function Home() {
                 <div className="relative h-72 w-full overflow-hidden">
                   <Image
                     src="/images/staff/doctor1.png"
-                    alt="Dr. Michael Braian"
+                    alt="Michael Braian"
                     fill
                     className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
@@ -1514,7 +1514,7 @@ export default function Home() {
 
                 {/* Content */}
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Michael Braian</h3>
+                  <h3 className="text-lg font-semibold text-neutral-800">Michael Braian</h3>
                   <p className="text-sm text-amber-600">Tandläkare, Specialist Oral Protetik</p>
                   <p className="mt-2 text-sm text-neutral-600">
                     Specialiserad inom protetik med bakgrund som tandtekniker och odontologie doktor.
@@ -1532,13 +1532,13 @@ export default function Home() {
                 <div className="relative h-72 w-full overflow-hidden">
                   <Image
                     src="/images/staff/doctor2.png"
-                    alt="Dr. Arman Ameri"
+                    alt="Arman Ameri"
                     fill
                     className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Arman Ameri</h3>
+                  <h3 className="text-lg font-semibold text-neutral-800">Arman Ameri</h3>
                   <p className="text-sm text-amber-600">Tandläkare, Specialist Oral Protetik</p>
                   <p className="mt-2 text-sm text-neutral-600">
                     Medgrundare av Baltzar Tandvård med passion för estetisk tandvård.
@@ -1556,13 +1556,13 @@ export default function Home() {
                 <div className="relative h-72 w-full overflow-hidden">
                   <Image
                     src="/images/staff/doctor3.png"
-                    alt="Dr. Filip Rebelo Dessborn"
+                    alt="Filip Rebelo Dessborn"
                     fill
                     className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Filip Rebelo Dessborn</h3>
+                  <h3 className="text-lg font-semibold text-neutral-800">Filip Rebelo Dessborn</h3>
                   <p className="text-sm text-amber-600">Tandläkare, Verksamhetschef</p>
                   <p className="mt-2 text-sm text-neutral-600">
                     Erfaren tandläkare med särskilt intresse för Oral Protetik.
@@ -1580,13 +1580,13 @@ export default function Home() {
                 <div className="relative h-72 w-full overflow-hidden">
                   <Image
                     src="/images/staff/doctor4.png"
-                    alt="Dr. Daniel Jönsson"
+                    alt="Daniel Jönsson"
                     fill
                     className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Daniel Jönsson</h3>
+                  <h3 className="text-lg font-semibold text-neutral-800">Daniel Jönsson</h3>
                   <p className="text-sm text-amber-600">Tandläkare, Specialist Parodontologi</p>
                   <p className="mt-2 text-sm text-neutral-600">
                     Docent i Internmedicinsk Forskning och Parodontologi.
