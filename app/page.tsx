@@ -65,6 +65,7 @@ interface ModalContent {
   isOpen: boolean;
   title: string;
   content: string;
+  clickPosition?: { x: number; y: number }; // Add click position
 }
 
 // Modal Component
@@ -73,17 +74,20 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   content: string;
+  clickPosition?: { x: number; y: number };
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content, clickPosition }) => {
   if (!isOpen) return null;
   
   // References for positioning
   const modalRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   
-  // State for modal positioning
-  const [scrollPosition, setScrollPosition] = useState<number>(0);
+  // Handle touch events to close modal on swipe down (mobile UX improvement)
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [swipeDistance, setSwipeDistance] = useState<number>(0);
 
   // Close on escape key
   useEffect(() => {
@@ -95,12 +99,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content }) => {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
-  // Set scroll position when modal opens to position it properly
+  // Set body scroll lock when modal is open
   useEffect(() => {
     if (isOpen) {
-      // Get current scroll position
-      setScrollPosition(window.scrollY);
-      
       // Disable body scroll when modal is open
       document.body.style.overflow = 'hidden';
     } else {
@@ -113,11 +114,34 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content }) => {
     };
   }, [isOpen]);
 
-  // Handle touch events to close modal on swipe down (mobile UX improvement)
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [swipeDistance, setSwipeDistance] = useState<number>(0);
+  // Calculate modal position based on click location
+  const getModalStyle = () => {
+    if (!clickPosition || typeof window === 'undefined') {
+      return {}; // Default position if no click position
+    }
 
+    const viewportHeight = window.innerHeight;
+    const modalHeight = 400; // Estimated modal height
+    const padding = 20; // Padding from click position
+    
+    // Calculate optimal Y position - position modal near click point
+    let topPosition = clickPosition.y - window.scrollY - 100; // Position slightly above click point
+    
+    // Ensure modal stays within viewport
+    if (topPosition < 70) topPosition = 70; // Keep below header
+    if (topPosition + modalHeight > viewportHeight - 40) {
+      topPosition = Math.max(70, viewportHeight - modalHeight - 40);
+    }
+    
+    return {
+      position: 'fixed' as const,
+      top: `${topPosition}px`,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      marginTop: 0
+    };
+  };
+  
   // Define min swipe distance (in px)
   const minSwipeDistance = 50;
 
@@ -174,10 +198,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content }) => {
       transition={{ duration: 0.2 }}
       className="fixed inset-0 z-50 touch-none overflow-y-auto modal-container"
       onClick={onClose}
-      style={{ 
-        alignItems: 'flex-start', 
-        paddingTop: 'calc(50vh - 150px)', // Default position in middle of screen for desktop 
-      }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
@@ -202,10 +222,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content }) => {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        style={{
-          // On mobile, position the modal based on user's viewport position
-          marginTop: typeof window !== 'undefined' && window.innerWidth < 768 ? '20px' : 'auto',
-        }}
+        style={getModalStyle()}
       >
         {/* Swipe indicator for mobile */}
         <div className="w-16 h-1.5 bg-amber-200/60 rounded-full mx-auto mb-4 md:hidden"></div>
@@ -371,33 +388,25 @@ export default function Home() {
   const [modalContent, setModalContent] = useState<ModalContent>({
     isOpen: false,
     title: '',
-    content: ''
+    content: '',
+    clickPosition: undefined
   })
   const heroRef = useRef(null)
   
-  const openModal = (title: string, content: string): void => {
-    // Save current scroll position
-    const currentScrollY = window.scrollY;
+  const openModal = (title: string, content: string, event?: React.MouseEvent): void => {
+    // Capture click position if event is provided
+    const clickPosition = event ? { 
+      x: event.clientX, 
+      y: event.clientY
+    } : undefined;
     
-    // Set modal content
+    // Set modal content with click position
     setModalContent({
       isOpen: true,
       title,
-      content
+      content,
+      clickPosition
     });
-    
-    // On mobile, ensure the modal is visible in the viewport
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      // Use a short timeout to allow the modal to render before adjusting
-      setTimeout(() => {
-        // Find the modal element
-        const modalElement = document.querySelector('.modal-container');
-        if (modalElement) {
-          // Ensure the modal is in view
-          modalElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
-    }
   };
 
   const closeModal = (): void => {
@@ -435,6 +444,7 @@ export default function Home() {
         onClose={closeModal}
         title={modalContent.title}
         content={modalContent.content}
+        clickPosition={modalContent.clickPosition}
       />
 
       {/* Mobile Menu */}
@@ -775,7 +785,7 @@ export default function Home() {
                     {service.expandedDescription && (
                       <div 
                         className="mt-auto flex items-center text-amber-600 cursor-pointer transition-all duration-300 hover:translate-x-1"
-                        onClick={() => openModal(service.title, service.expandedDescription || '')}
+                        onClick={(e) => openModal(service.title, service.expandedDescription || '', e)}
                       >
                         <span className="text-sm font-medium">Läs mer</span>
                         <ChevronRight className="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -899,7 +909,7 @@ export default function Home() {
                         {tech.expandedDescription && (
                           <div 
                             className="mt-4 flex items-center text-amber-600 cursor-pointer transition-all duration-300 hover:translate-x-1"
-                            onClick={() => openModal(tech.title, tech.expandedDescription || '')}
+                            onClick={(e) => openModal(tech.title, tech.expandedDescription || '', e)}
                           >
                             <span className="text-sm font-medium">Läs mer</span>
                             <ChevronRight className="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-0.5" />
