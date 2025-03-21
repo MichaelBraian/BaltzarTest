@@ -1506,7 +1506,7 @@ export default function Home() {
                 <div className="relative h-72 w-full overflow-hidden">
                   <Image
                     src="/images/staff/doctor1.png"
-                    alt="Dr. Anna Svensson"
+                    alt="Dr. Michael Braian"
                     fill
                     className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
@@ -1514,10 +1514,10 @@ export default function Home() {
 
                 {/* Content */}
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Anna Svensson</h3>
-                  <p className="text-sm text-amber-600">Tandläkare</p>
+                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Michael Braian</h3>
+                  <p className="text-sm text-amber-600">Tandläkare, Specialist Oral Protetik</p>
                   <p className="mt-2 text-sm text-neutral-600">
-                    Specialiserad inom protetik och implantat med över 15 års erfarenhet.
+                    Specialiserad inom protetik med bakgrund som tandtekniker och odontologie doktor.
                   </p>
                 </div>
               </MotionDiv>
@@ -1532,16 +1532,16 @@ export default function Home() {
                 <div className="relative h-72 w-full overflow-hidden">
                   <Image
                     src="/images/staff/doctor2.png"
-                    alt="Dr. Erik Lindberg"
+                    alt="Dr. Arman Ameri"
                     fill
                     className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Erik Lindberg</h3>
-                  <p className="text-sm text-amber-600">Tandläkare</p>
+                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Arman Ameri</h3>
+                  <p className="text-sm text-amber-600">Tandläkare, Specialist Oral Protetik</p>
                   <p className="mt-2 text-sm text-neutral-600">
-                    Specialist på estetisk tandvård och digitala behandlingsmetoder.
+                    Medgrundare av Baltzar Tandvård med passion för estetisk tandvård.
                   </p>
                 </div>
               </MotionDiv>
@@ -1556,16 +1556,16 @@ export default function Home() {
                 <div className="relative h-72 w-full overflow-hidden">
                   <Image
                     src="/images/staff/doctor3.png"
-                    alt="Dr. Maja Nilsson"
+                    alt="Dr. Filip Rebelo Dessborn"
                     fill
                     className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Maja Nilsson</h3>
-                  <p className="text-sm text-amber-600">Tandläkare</p>
+                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Filip Rebelo Dessborn</h3>
+                  <p className="text-sm text-amber-600">Tandläkare, Verksamhetschef</p>
                   <p className="mt-2 text-sm text-neutral-600">
-                    Inriktad på familjetandvård och smärtfri behandling för alla åldrar.
+                    Erfaren tandläkare med särskilt intresse för Oral Protetik.
                   </p>
                 </div>
               </MotionDiv>
@@ -1580,16 +1580,16 @@ export default function Home() {
                 <div className="relative h-72 w-full overflow-hidden">
                   <Image
                     src="/images/staff/doctor4.png"
-                    alt="Dr. Karl Bergström"
+                    alt="Dr. Daniel Jönsson"
                     fill
                     className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Karl Bergström</h3>
-                  <p className="text-sm text-amber-600">Tandläkare</p>
+                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Daniel Jönsson</h3>
+                  <p className="text-sm text-amber-600">Tandläkare, Specialist Parodontologi</p>
                   <p className="mt-2 text-sm text-neutral-600">
-                    Expert på endodonti (rotbehandling) och svåra tandproblem.
+                    Docent i Internmedicinsk Forskning och Parodontologi.
                   </p>
                 </div>
               </MotionDiv>
@@ -1604,16 +1604,16 @@ export default function Home() {
                 <div className="relative h-72 w-full overflow-hidden">
                   <Image
                     src="/images/staff/hygienist1.png"
-                    alt="Sofia Ekdahl"
+                    alt="Malin Andersson"
                     fill
                     className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-neutral-800">Sofia Ekdahl</h3>
+                  <h3 className="text-lg font-semibold text-neutral-800">Malin Andersson</h3>
                   <p className="text-sm text-amber-600">Tandhygienist</p>
                   <p className="mt-2 text-sm text-neutral-600">
-                    Specialiserad på förebyggande tandvård och tandblekning.
+                    Erfaren tandhygienist med passion för patientvård.
                   </p>
                 </div>
               </MotionDiv>
@@ -1628,16 +1628,16 @@ export default function Home() {
                 <div className="relative h-72 w-full overflow-hidden">
                   <Image
                     src="/images/staff/hygienist2.png"
-                    alt="Jonas Wikström"
+                    alt="Johanna Nielsen"
                     fill
                     className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-neutral-800">Jonas Wikström</h3>
+                  <h3 className="text-lg font-semibold text-neutral-800">Johanna Nielsen</h3>
                   <p className="text-sm text-amber-600">Tandhygienist</p>
                   <p className="mt-2 text-sm text-neutral-600">
-                    Expert på behandling av tandköttsproblem och munhälsa.
+                    Erfaren hygienist med bakgrund inom ortopedi och förlossningsvård.
                   </p>
                 </div>
               </MotionDiv>
@@ -1652,13 +1652,13 @@ export default function Home() {
                 <div className="relative h-72 w-full overflow-hidden">
                   <Image
                     src="/images/staff/assistant1.png"
-                    alt="Lina Petersson"
+                    alt="Samra Salama"
                     fill
                     className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-lg font-semibold text-neutral-800">Lina Petersson</h3>
+                  <h3 className="text-lg font-semibold text-neutral-800">Samra Salama</h3>
                   <p className="text-sm text-amber-600">Tandsköterska</p>
                   <p className="mt-2 text-sm text-neutral-600">
                     Skapar en trygg och positiv upplevelse för alla patienter.
