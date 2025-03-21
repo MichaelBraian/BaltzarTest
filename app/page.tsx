@@ -38,6 +38,7 @@ import {
   StaggerChildren,
   StaggerItem
 } from "../components/animation-lib"
+import { ResponsiveGrid } from "../components/ui/responsive-container"
 
 // Define props interface for ClientHeroContent
 interface ClientHeroContentProps {
@@ -1489,177 +1490,183 @@ export default function Home() {
               </p>
             </Reveal>
             
-            <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {/* Staff Member 1 */}
-              <StaggerItem>
-                <div className="group overflow-hidden rounded-xl bg-white p-6 shadow-md transition-all hover:shadow-lg">
-                  <div className="relative mb-6 aspect-[3/4] w-full overflow-hidden rounded-lg">
-                    <Image
-                      src="/images/staff/doctor1.png" 
-                      alt="Dr. Michael Braian"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <h3 className="mb-1 text-xl font-semibold text-neutral-800">Dr. Michael Braian</h3>
-                  <p className="mb-3 text-amber-600">Tandläkare, Specialist Oral Protetik</p>
-                  <div className="space-y-3 text-sm text-neutral-600">
-                    <p>Odontologie doktor, Tandtekniker</p>
-                    <p>
-                      Michael är en mångfacetterad specialist i protetik som kombinerar djup teoretisk kunskap med praktisk skicklighet. Med en dubbelexamen som tandläkare och tandtekniker har han unika förutsättningar att hantera hela behandlingsprocessen.
-                    </p>
-                    <p className="line-clamp-3 md:line-clamp-none">
-                      Hans karriär inkluderar 12 år som lärare vid Tandvårdshögskolan i Malmö och han har även forskat om digitala metoder inom tandvården. År 2018 avslutade han sin forskning med en disputation. Michael är en pionjär i användningen av 3D-scanning av tänder och dess integration i patientbehandling.
-                    </p>
-                  </div>
+            {/* Staff members */}
+            <ResponsiveGrid
+              columns={{ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }}
+              className="mt-12 gap-6 md:gap-8"
+            >
+              {/* Doctor 1 */}
+              <MotionDiv
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="group cursor-pointer overflow-hidden rounded-xl border border-amber-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md"
+              >
+                {/* Image container */}
+                <div className="relative h-72 w-full overflow-hidden">
+                  <Image
+                    src="/images/staff/doctor1.png"
+                    alt="Dr. Anna Svensson"
+                    fill
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                  />
                 </div>
-              </StaggerItem>
 
-              {/* Staff Member 2 */}
-              <StaggerItem>
-                <div className="group overflow-hidden rounded-xl bg-white p-6 shadow-md transition-all hover:shadow-lg">
-                  <div className="relative mb-6 aspect-[3/4] w-full overflow-hidden rounded-lg">
-                    <Image
-                      src="/images/staff/doctor2.png" 
-                      alt="Dr. Arman Ameri"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <h3 className="mb-1 text-xl font-semibold text-neutral-800">Dr. Arman Ameri</h3>
-                  <p className="mb-3 text-amber-600">Tandläkare, Specialist Oral Protetik</p>
-                  <div className="space-y-3 text-sm text-neutral-600">
-                    <p>
-                      Arman är en stolt medgrundare till Baltzar Tandvård samt specialisttandläkare inom oral protetik. Med en djupgående passion för estetisk tandvård och omfattande restaurativa procedurer, är hans mål att återskapa vackra leenden.
-                    </p>
-                    <p className="line-clamp-3 md:line-clamp-none">
-                      Hans expertis inom protetik spänner över allt från enkla ingrepp till komplexa rehabiliteringar, som kräver noggrann planering och precision. I sitt arbete kombinerar han hantverk och vetenskap för att skapa funktionella och estetiskt tilltalande tandlösningar som är skräddarsydda för varje patients unika behov.
-                    </p>
-                  </div>
+                {/* Content */}
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Anna Svensson</h3>
+                  <p className="text-sm text-amber-600">Tandläkare</p>
+                  <p className="mt-2 text-sm text-neutral-600">
+                    Specialiserad inom protetik och implantat med över 15 års erfarenhet.
+                  </p>
                 </div>
-              </StaggerItem>
+              </MotionDiv>
 
-              {/* Staff Member 3 */}
-              <StaggerItem>
-                <div className="group overflow-hidden rounded-xl bg-white p-6 shadow-md transition-all hover:shadow-lg">
-                  <div className="relative mb-6 aspect-[3/4] w-full overflow-hidden rounded-lg">
-                    <Image
-                      src="/images/staff/doctor3.jpg" 
-                      alt="Dr. Filip Rebelo Dessborn"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <h3 className="mb-1 text-xl font-semibold text-neutral-800">Dr. Filip Rebelo Dessborn</h3>
-                  <p className="mb-3 text-amber-600">Tandläkare, Verksamhetschef</p>
-                  <div className="space-y-3 text-sm text-neutral-600">
-                    <p>
-                      Filip har en gedigen erfarenhet som tandläkare med ett särskilt intresse för Oral Protetik, ett område han fördjupade sig i efter att ha startat sin karriär inom tandteknik. Han har mångårig erfarenhet som lärare vid Tandvårdshögskolan i Malmö.
-                    </p>
-                    <p className="line-clamp-3 md:line-clamp-none">
-                      Filip är känd för sitt lugna och metodiska arbetssätt, vilket gör honom särskilt omtyckt bland patienter som kan känna oro inför tandvårdsbesök. Han erbjuder allt från allmäntandvård till mer avancerade behandlingar för bettrehabilitering på tänder och implantat.
-                    </p>
-                  </div>
+              {/* Doctor 2 */}
+              <MotionDiv
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="group cursor-pointer overflow-hidden rounded-xl border border-amber-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md"
+              >
+                <div className="relative h-72 w-full overflow-hidden">
+                  <Image
+                    src="/images/staff/doctor2.png"
+                    alt="Dr. Erik Lindberg"
+                    fill
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                  />
                 </div>
-              </StaggerItem>
-              
-              {/* Staff Member 4 */}
-              <StaggerItem>
-                <div className="group overflow-hidden rounded-xl bg-white p-6 shadow-md transition-all hover:shadow-lg">
-                  <div className="relative mb-6 aspect-[3/4] w-full overflow-hidden rounded-lg">
-                    <Image
-                      src="/images/staff/doctor4.jpg" 
-                      alt="Dr. Daniel Jönsson"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <h3 className="mb-1 text-xl font-semibold text-neutral-800">Dr. Daniel Jönsson</h3>
-                  <p className="mb-3 text-amber-600">Tandläkare, Specialist Parodontologi</p>
-                  <div className="space-y-3 text-sm text-neutral-600">
-                    <p>Docent i Internmedicinsk Forskning och Parodontologi</p>
-                    <p>
-                      Daniel är specialisttandläkare i parodontologi samt docent inom parodontologi och internmedicinsk forskning. Han har alltid jobbat kliniskt vid sidan av forskningen med stort patientfokus och särskilt intresse för sambandet mellan munhälsa och allmänhälsa.
-                    </p>
-                    <p className="line-clamp-3 md:line-clamp-none">
-                      Daniel behandlar tandlossningssjukdomar, infektioner vid tandimplantat, tandköttsretraktioner och utför komplicerade implantatinstallationer.
-                    </p>
-                  </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Erik Lindberg</h3>
+                  <p className="text-sm text-amber-600">Tandläkare</p>
+                  <p className="mt-2 text-sm text-neutral-600">
+                    Specialist på estetisk tandvård och digitala behandlingsmetoder.
+                  </p>
                 </div>
-              </StaggerItem>
-              
-              {/* Staff Member 5 */}
-              <StaggerItem>
-                <div className="group overflow-hidden rounded-xl bg-white p-6 shadow-md transition-all hover:shadow-lg">
-                  <div className="relative mb-6 aspect-[3/4] w-full overflow-hidden rounded-lg">
-                    <Image
-                      src="/images/staff/hygienist1.png" 
-                      alt="Johanna Nielsen"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <h3 className="mb-1 text-xl font-semibold text-neutral-800">Johanna Nielsen</h3>
-                  <p className="mb-3 text-amber-600">Tandhygienist</p>
-                  <div className="space-y-3 text-sm text-neutral-600">
-                    <p>
-                      Johanna är en ovärderlig medlem i vårt team och har en gedigen bakgrund inom tandvård samt erfarenhet från ortopedi och förlossningsvård. Hon tar hand om sina egna patienter och bistår även med assistans.
-                    </p>
-                    <p className="line-clamp-3 md:line-clamp-none">
-                      Johanna är djupt engagerad i sitt arbete och har en passion för att hjälpa människor leva ett hälsosammare liv med ett strålande leende.
-                    </p>
-                  </div>
-                </div>
-              </StaggerItem>
-              
-              {/* Staff Member 6 */}
-              <StaggerItem>
-                <div className="group overflow-hidden rounded-xl bg-white p-6 shadow-md transition-all hover:shadow-lg">
-                  <div className="relative mb-6 aspect-[3/4] w-full overflow-hidden rounded-lg">
-                    <Image
-                      src="/images/staff/hygienist2.jpg" 
-                      alt="Malin Andersson"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <h3 className="mb-1 text-xl font-semibold text-neutral-800">Malin Andersson</h3>
-                  <p className="mb-3 text-amber-600">Tandhygienist</p>
-                  <div className="space-y-3 text-sm text-neutral-600">
-                    <p>
-                      Malin är en dynamisk tandhygienist som också assisterar tandläkarna. Med sitt stora intresse för tandvård har hon snabbt blivit en ovärderlig del av vårt team.
-                    </p>
-                    <p className="line-clamp-3 md:line-clamp-none">
-                      Malins engagemang och noggrannhet i patientvården bidrar till att alla känner sig välkomna och trygga. Hon är alltid redo att lära sig nya tekniker och strävar efter att ge bästa möjliga vård till våra patienter.
-                    </p>
-                  </div>
-                </div>
-              </StaggerItem>
+              </MotionDiv>
 
-              {/* Staff Member 7 */}
-              <StaggerItem>
-                <div className="group overflow-hidden rounded-xl bg-white p-6 shadow-md transition-all hover:shadow-lg">
-                  <div className="relative mb-6 aspect-[3/4] w-full overflow-hidden rounded-lg">
-                    <Image
-                      src="/images/staff/assistant1.jpg" 
-                      alt="Samra Salama"
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <h3 className="mb-1 text-xl font-semibold text-neutral-800">Samra Salama</h3>
-                  <p className="mb-3 text-amber-600">Tandsköterska</p>
-                  <div className="space-y-3 text-sm text-neutral-600">
-                    <p>
-                      Som tandsköterska bidrar Samra med sin expertis och omtanke till att säkerställa att varje patients upplevelse är så behaglig och effektiv som möjligt.
-                    </p>
-                    <p className="line-clamp-3 md:line-clamp-none">
-                      Mer information kommer snart.
-                    </p>
-                  </div>
+              {/* Doctor 3 */}
+              <MotionDiv
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="group cursor-pointer overflow-hidden rounded-xl border border-amber-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md"
+              >
+                <div className="relative h-72 w-full overflow-hidden">
+                  <Image
+                    src="/images/staff/doctor3.png"
+                    alt="Dr. Maja Nilsson"
+                    fill
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                  />
                 </div>
-              </StaggerItem>
-            </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Maja Nilsson</h3>
+                  <p className="text-sm text-amber-600">Tandläkare</p>
+                  <p className="mt-2 text-sm text-neutral-600">
+                    Inriktad på familjetandvård och smärtfri behandling för alla åldrar.
+                  </p>
+                </div>
+              </MotionDiv>
+
+              {/* Doctor 4 */}
+              <MotionDiv
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="group cursor-pointer overflow-hidden rounded-xl border border-amber-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md"
+              >
+                <div className="relative h-72 w-full overflow-hidden">
+                  <Image
+                    src="/images/staff/doctor4.png"
+                    alt="Dr. Karl Bergström"
+                    fill
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold text-neutral-800">Dr. Karl Bergström</h3>
+                  <p className="text-sm text-amber-600">Tandläkare</p>
+                  <p className="mt-2 text-sm text-neutral-600">
+                    Expert på endodonti (rotbehandling) och svåra tandproblem.
+                  </p>
+                </div>
+              </MotionDiv>
+
+              {/* Hygienist 1 */}
+              <MotionDiv
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="group cursor-pointer overflow-hidden rounded-xl border border-amber-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md"
+              >
+                <div className="relative h-72 w-full overflow-hidden">
+                  <Image
+                    src="/images/staff/hygienist1.png"
+                    alt="Sofia Ekdahl"
+                    fill
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold text-neutral-800">Sofia Ekdahl</h3>
+                  <p className="text-sm text-amber-600">Tandhygienist</p>
+                  <p className="mt-2 text-sm text-neutral-600">
+                    Specialiserad på förebyggande tandvård och tandblekning.
+                  </p>
+                </div>
+              </MotionDiv>
+
+              {/* Hygienist 2 */}
+              <MotionDiv
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="group cursor-pointer overflow-hidden rounded-xl border border-amber-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md"
+              >
+                <div className="relative h-72 w-full overflow-hidden">
+                  <Image
+                    src="/images/staff/hygienist2.png"
+                    alt="Jonas Wikström"
+                    fill
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold text-neutral-800">Jonas Wikström</h3>
+                  <p className="text-sm text-amber-600">Tandhygienist</p>
+                  <p className="mt-2 text-sm text-neutral-600">
+                    Expert på behandling av tandköttsproblem och munhälsa.
+                  </p>
+                </div>
+              </MotionDiv>
+
+              {/* Assistant */}
+              <MotionDiv
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                className="group cursor-pointer overflow-hidden rounded-xl border border-amber-100 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md"
+              >
+                <div className="relative h-72 w-full overflow-hidden">
+                  <Image
+                    src="/images/staff/assistant1.png"
+                    alt="Lina Petersson"
+                    fill
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold text-neutral-800">Lina Petersson</h3>
+                  <p className="text-sm text-amber-600">Tandsköterska</p>
+                  <p className="mt-2 text-sm text-neutral-600">
+                    Skapar en trygg och positiv upplevelse för alla patienter.
+                  </p>
+                </div>
+              </MotionDiv>
+
+            </ResponsiveGrid>
           </div>
         </section>
 
