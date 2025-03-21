@@ -88,6 +88,18 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content, clickPos
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [swipeDistance, setSwipeDistance] = useState<number>(0);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Close on escape key
   useEffect(() => {
@@ -102,27 +114,37 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content, clickPos
   // Set body scroll lock when modal is open
   useEffect(() => {
     if (isOpen) {
+      // Save current scroll position
+      const scrollY = window.scrollY;
+      
       // Disable body scroll when modal is open
-      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
     } else {
       // Re-enable body scroll when modal closes
-      document.body.style.overflow = '';
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
     
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
     };
   }, [isOpen]);
 
-  // Calculate modal position based on click location
+  // Calculate modal position based on click location or center for mobile
   const getModalStyle = () => {
-    if (!clickPosition || typeof window === 'undefined') {
-      return {}; // Default position if no click position
+    if (isMobile || !clickPosition || typeof window === 'undefined') {
+      return {}; // Center position for mobile
     }
 
     const viewportHeight = window.innerHeight;
     const modalHeight = 400; // Estimated modal height
-    const padding = 20; // Padding from click position
     
     // Calculate optimal Y position - position modal near click point
     let topPosition = clickPosition.y - window.scrollY - 100; // Position slightly above click point
@@ -189,6 +211,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content, clickPos
     setSwipeDistance(0);
   };
 
+  // Stop propagation on modal content click to prevent closing
+  const handleContentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <MotionDiv
       ref={modalRef}
@@ -196,7 +223,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content, clickPos
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 touch-none overflow-y-auto modal-container"
+      className="fixed inset-0 z-50 overflow-y-auto modal-container"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -217,33 +244,33 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, content, clickPos
           stiffness: 300,
           duration: 0.3 
         }}
-        className="relative z-10 mx-auto w-[92%] max-w-lg overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-b from-white to-amber-50/80 p-4 md:p-6 shadow-xl backdrop-blur-sm max-h-[80vh] md:max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
+        onClick={handleContentClick}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         style={getModalStyle()}
+        className="relative z-10 mx-auto w-[92%] max-w-lg overflow-hidden rounded-xl border border-amber-100 bg-gradient-to-b from-white to-amber-50/80 p-4 md:p-6 shadow-xl backdrop-blur-sm max-h-[80vh] md:max-h-[90vh] overflow-y-auto"
       >
         {/* Swipe indicator for mobile */}
-        <div className="w-16 h-1.5 bg-amber-200/60 rounded-full mx-auto mb-4 md:hidden"></div>
-        
-        {/* Close button - positioned for both mobile and desktop */}
-        <button 
-          onClick={onClose}
-          className="absolute top-3 right-3 md:top-4 md:right-4 h-8 w-8 md:h-10 md:w-10 rounded-full border border-amber-200 bg-white/80 flex items-center justify-center text-amber-600 hover:bg-amber-50 transition-colors"
-          aria-label="Stäng"
-        >
-          <X className="h-4 w-4 md:h-5 md:w-5" />
-        </button>
-        
-        <div className="pt-2 md:pt-0">
-          <h3 id="modal-title" className="text-xl md:text-2xl font-semibold text-amber-800 mb-2 md:mb-4 pr-8">
-            {title}
-          </h3>
-          
-          <div className="prose prose-amber prose-sm md:prose-base max-w-none">
-            {content}
+        {isMobile && (
+          <div className="mb-3 flex justify-center">
+            <div className="h-1 w-16 rounded-full bg-neutral-200"></div>
           </div>
+        )}
+        
+        <div className="flex items-center justify-between mb-4">
+          <h2 id="modal-title" className="text-xl font-bold text-neutral-800">{title}</h2>
+          <button
+            onClick={onClose}
+            className="rounded-full p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800 transition-colors"
+            aria-label="Stäng"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <div className="content whitespace-pre-line text-neutral-600">
+          {content}
         </div>
       </MotionDiv>
     </MotionDiv>
@@ -391,9 +418,119 @@ export default function Home() {
     content: '',
     clickPosition: undefined
   })
+  // Add state to track expanded items
+  const [expandedServices, setExpandedServices] = useState<number[]>([])
+  const [expandedTech, setExpandedTech] = useState<number[]>([])
+  // Add scroll state for header
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true)
   const heroRef = useRef(null)
+  const headerRef = useRef<HTMLElement>(null)
+  // Refs for expanded content
+  const serviceContentRefs = useRef<(HTMLDivElement | null)[]>([])
+  const techContentRefs = useRef<(HTMLDivElement | null)[]>([])
   
+  // Handle scroll effect for header
+  useEffect(() => {
+    const handleScroll = () => {
+      if (typeof window !== 'undefined') {
+        // Check if page is scrolled more than 20px (smaller threshold for quicker response)
+        const newScrolled = window.scrollY > 20;
+        if (newScrolled !== isScrolled) {
+          console.log(`Scroll state changed: ${newScrolled ? 'scrolled' : 'at top'}, Y position: ${window.scrollY}`);
+          setIsScrolled(newScrolled);
+        }
+      }
+    };
+    
+    // Add scroll event listener with passive option for better performance
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      
+      // Initial check
+      handleScroll();
+    }
+    
+    // Cleanup
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [isScrolled]);
+
+  // Intersection Observer to monitor header visibility
+  useEffect(() => {
+    if (!headerRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsHeaderVisible(entry.isIntersecting);
+        console.log(`Header visibility: ${entry.isIntersecting ? 'visible' : 'hidden'}`);
+      },
+      { threshold: 0.1 }
+    );
+    
+    observer.observe(headerRef.current);
+    
+    return () => {
+      if (headerRef.current) {
+        observer.unobserve(headerRef.current);
+      }
+    };
+  }, []);
+  
+  // Toggle service expansion with focus management
+  const toggleServiceExpansion = (index: number): void => {
+    setExpandedServices(prev => {
+      const newExpanded = prev.includes(index) ? [] : [index]
+      
+      // If we're expanding, set a timeout to focus on content after animation
+      if (newExpanded.length > 0) {
+        setTimeout(() => {
+          if (serviceContentRefs.current[index]) {
+            serviceContentRefs.current[index]?.focus()
+          }
+        }, 350) // Slightly longer than animation duration
+      }
+      
+      return newExpanded
+    })
+  }
+  
+  // Toggle tech item expansion with focus management
+  const toggleTechExpansion = (index: number): void => {
+    setExpandedTech(prev => {
+      const newExpanded = prev.includes(index) ? [] : [index]
+      
+      // If we're expanding, set a timeout to focus on content after animation
+      if (newExpanded.length > 0) {
+        setTimeout(() => {
+          if (techContentRefs.current[index]) {
+            techContentRefs.current[index]?.focus()
+          }
+        }, 350) // Slightly longer than animation duration
+      }
+      
+      return newExpanded
+    })
+  }
+  
+  // Cleanup expanded items on unmount
+  useEffect(() => {
+    return () => {
+      setExpandedServices([])
+      setExpandedTech([])
+    }
+  }, [])
+
   const openModal = (title: string, content: string, event?: React.MouseEvent): void => {
+    // Prevent event from propagating if provided
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    
     // Capture click position if event is provided
     const clickPosition = event ? { 
       x: event.clientX, 
@@ -423,16 +560,125 @@ export default function Home() {
 
   // Prevent body scrolling when menu is open
   useEffect(() => {
+    // Create a safer scroll lock mechanism
+    const lockScroll = () => {
+      // Store the current scroll position
+      const scrollY = window.scrollY;
+      // Apply styles to lock the body
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflowY = 'scroll';
+      // Store the scroll position as a data attribute
+      document.body.dataset.scrollPosition = String(scrollY);
+    };
+    
+    const unlockScroll = () => {
+      // Restore the scroll position
+      const scrollY = document.body.dataset.scrollPosition || '0';
+      // Remove the fixed positioning
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflowY = '';
+      // Scroll to the stored position
+      window.scrollTo(0, parseInt(scrollY, 10));
+      // Remove the data attribute
+      delete document.body.dataset.scrollPosition;
+    };
+    
     if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      lockScroll();
     } else {
-      document.body.style.overflow = '';
+      unlockScroll();
     }
     
     return () => {
-      document.body.style.overflow = '';
+      // Always unlock scroll when component unmounts
+      unlockScroll();
     };
   }, [isMenuOpen]);
+
+  // Force header to be visible (simpler solution than before)
+  useEffect(() => {
+    // Simple check to ensure header is visible after scrolling
+    const handleVisibilityCheck = () => {
+      if (headerRef.current) {
+        headerRef.current.style.display = 'block';
+        headerRef.current.style.visibility = 'visible';
+        headerRef.current.style.opacity = '1';
+        
+        // Force header to top of viewport on iOS
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent) || 
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+          headerRef.current.style.position = 'fixed';
+          headerRef.current.style.top = '0px';
+        }
+      }
+    };
+    
+    // Handle viewport height changes (important for mobile browsers)
+    const handleResize = () => {
+      // Set a CSS variable with the viewport height
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+      handleVisibilityCheck();
+    };
+    
+    window.addEventListener('scroll', handleVisibilityCheck, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleResize);
+    
+    // Check immediately and periodically
+    handleVisibilityCheck();
+    handleResize();
+    const interval = setInterval(handleVisibilityCheck, 500);
+    
+    return () => {
+      window.removeEventListener('scroll', handleVisibilityCheck);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+      clearInterval(interval);
+    };
+  }, []);
+  
+  // Add critical CSS for header
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      /* Critical header styles */
+      .sticky-header-fix {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        z-index: 100000 !important;
+        visibility: visible !important;
+        display: block !important;
+        opacity: 1 !important;
+        transform: none !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+      }
+      
+      /* iOS specific fixes */
+      @supports (-webkit-touch-callout: none) {
+        .sticky-header-fix {
+          position: sticky !important;
+        }
+      }
+      
+      /* Use viewport height properly on mobile */
+      .mobile-full-height {
+        height: 100vh;
+        height: calc(var(--vh, 1vh) * 100);
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-white text-neutral-800">
@@ -449,7 +695,7 @@ export default function Home() {
 
       {/* Mobile Menu */}
       <MotionDiv
-        className={`fixed inset-0 z-[150] bg-white overflow-y-auto ${isMenuOpen ? "block" : "hidden"}`}
+        className={`fixed inset-0 z-[900] bg-white overflow-y-auto ${isMenuOpen ? "block" : "hidden"}`}
         initial={{ opacity: 0, x: "100%" }}
         animate={{ 
           opacity: isMenuOpen ? 1 : 0,
@@ -554,7 +800,49 @@ export default function Home() {
         </div>
       </MotionDiv>
 
-      <header className="fixed top-0 z-40 w-full bg-white/90 backdrop-blur-md transition-all duration-300 shadow-sm border-b border-neutral-100">
+      {/* Backup header that appears when the main header is not visible */}
+      {!isHeaderVisible && (
+        <div className="fixed top-0 left-0 right-0 z-[9999] w-full bg-white shadow-lg border-b border-neutral-200 h-16 md:h-20">
+          <div className="container flex h-full items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Baltzar-Tandva%CC%8Ard-RGB-mod-286-8MdUcuR5huMlYQvylz1HsD40HkSIJe.png"
+                alt="Baltzar Tandvård"
+                width={180}
+                height={60}
+                style={{ height: '36px', width: 'auto' }}
+                priority
+              />
+            </Link>
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={() => setIsMenuOpen(true)}
+              className="md:hidden border-amber-200 text-amber-600 shadow-sm h-10 w-10 touch-target"
+              aria-label="Öppna meny"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <header 
+        ref={headerRef}
+        className={`sticky-header-fix force-visible-header fixed top-0 left-0 right-0 z-[10000] w-full ${
+          isScrolled 
+            ? "bg-white shadow-lg border-b border-neutral-200" 
+            : "bg-white/95 backdrop-blur-md shadow-sm border-b border-neutral-100/50"
+        } transition-all duration-300`}
+        style={{
+          willChange: 'transform',
+          transform: 'translateZ(0)',
+          visibility: 'visible',
+          display: 'block',
+          opacity: 1,
+          backfaceVisibility: 'hidden'
+        }}
+      >
         <div className="container flex h-16 md:h-20 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image
@@ -626,19 +914,32 @@ export default function Home() {
               </li>
             </ul>
           </nav>
-          <div className="flex items-center gap-4">
-            <TechButton className="hidden md:flex">Boka tid</TechButton>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setIsMenuOpen(true)}
-              className="border-amber-200 text-amber-600 shadow-sm h-10 w-10"
+          
+          {/* Call to action buttons (desktop) */}
+          <div className="hidden md:flex gap-4 items-center">
+            <Link
+              href="#boka"
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-sm font-medium transition-colors"
             >
-              <Menu className="h-5 w-5" />
-            </Button>
+              Boka tid
+            </Link>
           </div>
+          
+          {/* Mobile menu toggle */}
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={() => setIsMenuOpen(true)}
+            className="md:hidden border-amber-200 text-amber-600 shadow-sm h-10 w-10 touch-target"
+            aria-label="Öppna meny"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
         </div>
       </header>
+      
+      {/* Add padding to push content below fixed header */}
+      <div className="h-16 md:h-20 w-full" aria-hidden="true"></div>
 
       <main className="flex-1">
         {/* Hero Section */}
@@ -783,13 +1084,43 @@ export default function Home() {
                     <h3 className="mb-3 text-xl font-semibold text-neutral-800">{service.title}</h3>
                     <p className="mb-4 text-neutral-600">{service.description}</p>
                     {service.expandedDescription && (
-                      <div 
-                        className="mt-auto flex items-center text-amber-600 cursor-pointer transition-all duration-300 hover:translate-x-1"
-                        onClick={(e) => openModal(service.title, service.expandedDescription || '', e)}
-                      >
-                        <span className="text-sm font-medium">Läs mer</span>
-                        <ChevronRight className="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-0.5" />
-                      </div>
+                      <>
+                        <button 
+                          className="mt-auto flex items-center text-amber-600 cursor-pointer transition-all duration-300 hover:translate-x-1"
+                          onClick={() => toggleServiceExpansion(index)}
+                          aria-label={expandedServices.includes(index) ? `Visa mindre om ${service.title}` : `Läs mer om ${service.title}`}
+                          aria-expanded={expandedServices.includes(index)}
+                        >
+                          <span className="text-sm font-medium">
+                            {expandedServices.includes(index) ? "Visa mindre" : "Läs mer"}
+                          </span>
+                          <ChevronRight 
+                            className={`h-4 w-4 ml-1 transition-transform duration-300 ${
+                              expandedServices.includes(index) ? "rotate-90" : ""
+                            }`} 
+                          />
+                        </button>
+                        
+                        <AnimatePresence>
+                          {expandedServices.includes(index) && (
+                            <MotionDiv
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3 }}
+                              className="overflow-hidden"
+                            >
+                              <div 
+                                ref={el => serviceContentRefs.current[index] = el}
+                                className="mt-4 pt-4 border-t border-amber-100 whitespace-pre-line text-neutral-600"
+                                tabIndex={-1}
+                              >
+                                {service.expandedDescription}
+                              </div>
+                            </MotionDiv>
+                          )}
+                        </AnimatePresence>
+                      </>
                     )}
                   </ThreeDCard>
                 </StaggerItem>
@@ -907,13 +1238,43 @@ export default function Home() {
                         </div>
                         
                         {tech.expandedDescription && (
-                          <div 
-                            className="mt-4 flex items-center text-amber-600 cursor-pointer transition-all duration-300 hover:translate-x-1"
-                            onClick={(e) => openModal(tech.title, tech.expandedDescription || '', e)}
-                          >
-                            <span className="text-sm font-medium">Läs mer</span>
-                            <ChevronRight className="h-4 w-4 ml-1 transition-transform duration-300 group-hover:translate-x-0.5" />
-                          </div>
+                          <>
+                            <button 
+                              className="mt-4 flex items-center text-amber-600 cursor-pointer transition-all duration-300 hover:translate-x-1"
+                              onClick={() => toggleTechExpansion(index)}
+                              aria-label={expandedTech.includes(index) ? `Visa mindre om ${tech.title}` : `Läs mer om ${tech.title}`}
+                              aria-expanded={expandedTech.includes(index)}
+                            >
+                              <span className="text-sm font-medium">
+                                {expandedTech.includes(index) ? "Visa mindre" : "Läs mer"}
+                              </span>
+                              <ChevronRight 
+                                className={`h-4 w-4 ml-1 transition-transform duration-300 ${
+                                  expandedTech.includes(index) ? "rotate-90" : ""
+                                }`}
+                              />
+                            </button>
+                            
+                            <AnimatePresence>
+                              {expandedTech.includes(index) && (
+                                <MotionDiv
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: "auto" }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  transition={{ duration: 0.3 }}
+                                  className="overflow-hidden"
+                                >
+                                  <div 
+                                    ref={el => techContentRefs.current[index] = el}
+                                    className="mt-4 pt-4 border-t border-amber-100 whitespace-pre-line text-neutral-600"
+                                    tabIndex={-1}
+                                  >
+                                    {tech.expandedDescription}
+                                  </div>
+                                </MotionDiv>
+                              )}
+                            </AnimatePresence>
+                          </>
                         )}
                       </TechCard>
                     </StaggerItem>
@@ -989,7 +1350,7 @@ export default function Home() {
                     {
                       name: "MM, bekräftad patient",
                       rating: 5,
-                      review: "Mycket proffsigt. Saklig och grundlig info i en behaglig miljö. Personalen uppvisade ett trevligt bemötande. Kan varmt rekomenderas.",
+                      review: "Mycket proffsigt. Saklig och grundlig info i en behaglig miljö. Personalen uppvisade ett trevligt bemötande. Kan varmt rekommenderas.",
                       date: "15 juni 2022",
                     },
                     {
@@ -1790,7 +2151,7 @@ export default function Home() {
                       <address className="not-italic text-neutral-800">
                         Baltzarsgatan 12
                         <br />
-                        211 36 Malmö
+                        211 32 Malmö
                       </address>
                     </TechCard>
                   </StaggerItem>
