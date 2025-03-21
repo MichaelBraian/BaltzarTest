@@ -213,7 +213,7 @@ export function MobileNavigation({
                   </a>
                 </Button>
               )}
-              <Button className="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-800 py-6" asChild>
+              <Button className="flex-1 bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white py-6" asChild>
                 <Link href="#boka" onClick={closeMenu}>
                   Boka tid
                 </Link>

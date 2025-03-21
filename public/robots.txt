@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.baltzartandvard.se
+
+# Sitemaps
+Sitemap: https://www.baltzartandvard.se/sitemap.xml

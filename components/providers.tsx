@@ -3,6 +3,9 @@
 import React, { useEffect } from "react"
 import { ThemeProvider } from "./theme-provider"
 import { FramerMotionProvider } from "./framer-motion-provider"
+import { AppProvider } from "../contexts/AppContext"
+import { Modal } from "./ui/modal"
+import { useAppContext } from "../contexts/AppContext"
 
 /**
  * Mobile Viewport Handler Component
@@ -79,6 +82,23 @@ function OrientationHandler() {
   return null;
 }
 
+/**
+ * Modal container that wraps the Modal component
+ */
+function ModalContainer() {
+  const { modalContent, closeModal } = useAppContext();
+  
+  return (
+    <Modal 
+      isOpen={modalContent.isOpen}
+      onClose={closeModal}
+      title={modalContent.title}
+      content={modalContent.content}
+      clickPosition={modalContent.clickPosition}
+    />
+  );
+}
+
 export function Providers({ 
   children 
 }: { 
@@ -92,9 +112,12 @@ export function Providers({
       disableTransitionOnChange
     >
       <FramerMotionProvider>
-        <MobileViewportHandler />
-        <OrientationHandler />
-        {children}
+        <AppProvider>
+          <MobileViewportHandler />
+          <OrientationHandler />
+          {children}
+          <ModalContainer />
+        </AppProvider>
       </FramerMotionProvider>
     </ThemeProvider>
   )
